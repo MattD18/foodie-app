@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Test Recommendations Page</title>
+  </head>
+  <body>
+    <h1>{{ recs_list.name }}</h1>
+        <ul>
+        {% for restaurant in restaurant_list %}
+            <li>{{ restaurant.name }}</li>
+        {% endfor %}
+        </ul>
+  </body>
+</html>

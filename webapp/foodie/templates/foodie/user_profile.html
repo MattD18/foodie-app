@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Test Profile Page</title>
+  </head>
+  <body>
+    <h1>{{ user.first_name }}</h1>
+      <p>My List:</p>
+      <ul>
+      {% for restaurant in user_restaurant_list %}
+          <li>{{ restaurant.name }}</li>
+      {% endfor %}
+      </ul>
+  </body>
+</html>
