@@ -2,10 +2,9 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.http import HttpResponse
-from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 
-from .models import Restaurant, RestaurantList, User
+from .models import Restaurant, RestaurantList, FoodieUser
 
 def index(request):
     return HttpResponse("Hello, world. You're at the foodie index.")
@@ -34,8 +33,8 @@ def recs_list(request):
     return render(request, 'foodie/recommendations.html', context)
 
 def user_profile(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    user_restaurant_list_id = user.user_restaurant_list
+    user = get_object_or_404(FoodieUser, pk=user_id)
+    user_restaurant_list_id = user.saved_list
     user_restaurant_list = get_object_or_404(RestaurantList, pk=user_restaurant_list_id)
     user_restaurant_object_list = _get_restaurant_object_list(user_restaurant_list)
     context = {

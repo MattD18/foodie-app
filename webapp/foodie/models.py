@@ -1,6 +1,9 @@
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.utils import timezone
+
+from .managers import FoodieUserManager
 
 # Create your models here.
 class Restaurant(models.Model):
@@ -27,7 +30,18 @@ class RestaurantList(models.Model):
     def __str__(self):
         return self.name
 
-class User(AbstractUser):
-    '''
-    '''
-    user_restaurant_list = models.IntegerField()
+class FoodieUser(AbstractBaseUser, PermissionsMixin):
+    phone_number = models.CharField(unique=True, max_length=12)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+    foodie_username =  models.CharField(max_length=20, blank=True)
+    saved_list = models.IntegerField(null=True, blank=True)
+
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = []
+
+    objects = FoodieUserManager()
+
+    def __str__(self):
+        return self.foodie_username
