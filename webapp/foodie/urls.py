@@ -7,11 +7,13 @@ urlpatterns = [
     path('', views.index, name='index'),
     # ex: /foodie/login/
     path('login/', views.foodie_login, name='login'),
+    # ex: /foodie/login/
+    path('login/auth/', views.foodie_login_auth, name='login_auth'),
     # ex: /foodie/restaurants/4
     path('restaurants/<int:restaurant_id>/', views.restaurant_profile, name='restaurant_profile'),
     # ex: /foodie/recs #past lists should be hidden from user / hard to find when monetizing? would be free access to additonal recs
     path('recs/', views.recs_list, name='recs'),
-    path('recs/<str:restaurant_saved>/', views.recs_list, name='recs_from_saved'),
+    path('recs/<str:saved>', views.recs_list, name='recs_saved'),
     # ex: /foodie/users/
     path('profile/', views.user_profile, name='user_profile'), ##need to disguise user count in url
     # ex: /foodie/users/2 

@@ -1,10 +1,12 @@
-from django.shortcuts import render
+import re
+
+from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
 
 from .models import Restaurant, RestaurantList, FoodieUser, Engagement
 
@@ -24,35 +26,33 @@ def _get_restaurant_object_list(list:RestaurantList):
         restaurant_object_list.append(restaurant)
     return restaurant_object_list
 
-def recs_list(request, restaurant_saved=''):
+@login_required
+def recs_list(request, saved=None):
     user = request.user
     user_id = user.id
-    if user_id is not None:
-        recs_list = get_object_or_404(RestaurantList, pk=1) #HARDECODED for now
-        restaurant_object_list = _get_restaurant_object_list(recs_list)
-        context = {
-            'recs_list':recs_list,
-            'restaurant_list':restaurant_object_list
-        }
-        if restaurant_saved=='':
-            # log impression
-            # user_id=2
-            # user = get_object_or_404(FoodieUser, pk=user_id)
-            for restaurant_id in recs_list.restaurant_list:
-                restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
-                _log_engagement(user, restaurant, 'impression')
+    recs_list = get_object_or_404(RestaurantList, pk=1) #HARDECODED for now
+    restaurant_object_list = _get_restaurant_object_list(recs_list)
+    context = {
+        'recs_list':recs_list,
+        'restaurant_list':restaurant_object_list
+    } 
+    if not saved:
+        # log impression
+        for restaurant_id in recs_list.restaurant_list:
+            restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+            _log_engagement(user, restaurant, 'impression')
+    return render(request, 'foodie/recommendations.html', context)
 
-
-        return render(request, 'foodie/recommendations.html', context)
-    else:
-        return HttpResponseRedirect('/foodie/login')
 
 def foodie_login(request):
-    #TODO make proper login page
-    user = authenticate(request, phone_number='347-555-0003')
+    return render(request, 'foodie/login.html')
+
+def foodie_login_auth(request):
+    phone_number = request.POST['phone_number']
+    user = authenticate(request, phone_number=phone_number)
     if user is not None:
         login(request, user)
-        return HttpResponseRedirect('/foodie/recs')
+        return redirect('/foodie/recs')
     else:
         return HttpResponseNotFound('User not logged in')
 
@@ -68,22 +68,19 @@ def user_profile_by_id(request, user_id):
     }
     return render(request, 'foodie/user_profile.html', context)
 
+@login_required
 def user_profile(request):
-
     user=request.user
     user_id = user.id
-    if user_id is not None:
-        login(request, user)
-        user_restaurant_list_id = user.saved_list
-        user_restaurant_list = get_object_or_404(RestaurantList, pk=user_restaurant_list_id)
-        user_restaurant_object_list = _get_restaurant_object_list(user_restaurant_list)
-        context = {
-            'user':user,
-            'user_restaurant_list':user_restaurant_object_list
-        }
-        return render(request, 'foodie/user_profile.html', context)
-    else:
-        return HttpResponseRedirect('/foodie/login')
+    user_restaurant_list_id = user.saved_list
+    user_restaurant_list = get_object_or_404(RestaurantList, pk=user_restaurant_list_id)
+    user_restaurant_object_list = _get_restaurant_object_list(user_restaurant_list)
+    context = {
+        'user':user,
+        'user_restaurant_list':user_restaurant_object_list
+    }
+    return render(request, 'foodie/user_profile.html', context)
+
 
 
 def _log_engagement(user, restaurant, engagement_type):
@@ -115,5 +112,6 @@ def save_restaurant(request, restaurant_id):
         _log_engagement(user, restaurant, 'save')
     else: 
         pass
-    
-    return HttpResponseRedirect('/foodie/recs/restaurant_saved')
+
+    next = request.POST.get('next', '/')
+    return redirect('/foodie/recs/saved')

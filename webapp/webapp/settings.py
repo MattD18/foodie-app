@@ -106,6 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'foodie.FoodieUser'
 AUTHENTICATION_BACKENDS = ('foodie.backends.FoodieBackend',)
+LOGIN_URL = '/foodie/login'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
