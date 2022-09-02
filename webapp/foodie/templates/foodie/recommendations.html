@@ -7,7 +7,6 @@
   <body>
     <h1>{{ recs_list.name }}</h1>
         <ul>
-        <ul>
         {% for restaurant in restaurant_list %}
             <li>{{ restaurant.name }}</li>
             <form action="{{ restaurant.id }}/" method="post">

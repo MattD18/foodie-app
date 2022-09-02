@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 
 # Register your models here.
 from .forms import FoodieUserCreationForm, FoodieUserChangeForm
-from .models import Restaurant, RestaurantList, FoodieUser
+from .models import Restaurant, RestaurantList, FoodieUser, Engagement
 
 
 
@@ -32,3 +32,4 @@ admin.site.register(FoodieUser, FoodieUserAdmin)
 
 admin.site.register(Restaurant)
 admin.site.register(RestaurantList)
+admin.site.register(Engagement)

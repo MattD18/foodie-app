@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
-from .models import Restaurant, RestaurantList, FoodieUser
+from .models import Restaurant, RestaurantList, FoodieUser, Engagement
 
 def index(request):
     return HttpResponse("Hello, world. You're at the foodie index.")
@@ -52,13 +52,28 @@ def save_restaurant(request, restaurant_id):
 
     #TODO: dynamically choose user, for now just hard code
     '''
-    user = get_object_or_404(FoodieUser, pk=4)
+    user_id=4
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+    user = get_object_or_404(FoodieUser, pk=user_id)
     user_restaurant_list_object = get_object_or_404(RestaurantList, pk=user.saved_list)
     user_restaurant_list = user_restaurant_list_object.restaurant_list
     if not restaurant_id in user_restaurant_list:
         user_restaurant_list.append(restaurant_id)
-    user_restaurant_list_object.restaurant_list = user_restaurant_list
-    user_restaurant_list_object.save()
+        user_restaurant_list_object.restaurant_list = user_restaurant_list
+        user_restaurant_list_object.save()
+
+        #log result in engagement as well
+        e = Engagement(
+            user=user,
+            restaurant=restaurant,
+            action='save'
+        )
+        e.save()
+    else: 
+        pass
+    
+
+    
 
     return HttpResponseRedirect('/foodie/recs/')
 
