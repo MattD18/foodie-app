@@ -10,7 +10,7 @@
         <ul>
         {% for restaurant in restaurant_list %}
             <li>{{ restaurant.name }}</li>
-            <form action="save/{{ restaurant.id }}/" method="post">
+            <form action="/foodie/recs/save/{{ restaurant.id }}/" method="post">
                 {% csrf_token %}
                 <input type="submit" value="Save" />
             </form>
