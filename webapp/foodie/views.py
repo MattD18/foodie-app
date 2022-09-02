@@ -23,7 +23,7 @@ def _get_restaurant_object_list(list:RestaurantList):
         restaurant_object_list.append(restaurant)
     return restaurant_object_list
 
-def recs_list(request):
+def recs_list(request, restaurant_saved=''):
     # TODO: personalize recs to user
     recs_list = get_object_or_404(RestaurantList, pk=1) #HARDECODED for now
     restaurant_object_list = _get_restaurant_object_list(recs_list)
@@ -31,6 +31,15 @@ def recs_list(request):
         'recs_list':recs_list,
         'restaurant_list':restaurant_object_list
     }
+    if restaurant_saved=='':
+        # log impression
+        user_id=2
+        user = get_object_or_404(FoodieUser, pk=user_id)
+        for restaurant_id in recs_list.restaurant_list:
+            restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+            _log_engagement(user, restaurant, 'impression')
+
+
     return render(request, 'foodie/recommendations.html', context)
 
 def user_profile(request, user_id):
@@ -45,6 +54,16 @@ def user_profile(request, user_id):
     return render(request, 'foodie/user_profile.html', context)
 
 
+def _log_engagement(user, restaurant, engagement_type):
+    #log result in engagement as well
+    e = Engagement(
+        user=user,
+        restaurant=restaurant,
+        action=engagement_type
+    )
+    e.save()
+    return
+
 def save_restaurant(request, restaurant_id):
     '''
     append restaurant id to users save list
@@ -52,7 +71,7 @@ def save_restaurant(request, restaurant_id):
 
     #TODO: dynamically choose user, for now just hard code
     '''
-    user_id=4
+    user_id=2
     restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
     user = get_object_or_404(FoodieUser, pk=user_id)
     user_restaurant_list_object = get_object_or_404(RestaurantList, pk=user.saved_list)
@@ -62,18 +81,8 @@ def save_restaurant(request, restaurant_id):
         user_restaurant_list_object.restaurant_list = user_restaurant_list
         user_restaurant_list_object.save()
 
-        #log result in engagement as well
-        e = Engagement(
-            user=user,
-            restaurant=restaurant,
-            action='save'
-        )
-        e.save()
+        _log_engagement(user, restaurant, 'save')
     else: 
         pass
     
-
-    
-
-    return HttpResponseRedirect('/foodie/recs/')
-
+    return HttpResponseRedirect('/foodie/recs/restaurant_saved')

@@ -5,11 +5,12 @@
     <title>Test Recommendations Page</title>
   </head>
   <body>
+
     <h1>{{ recs_list.name }}</h1>
         <ul>
         {% for restaurant in restaurant_list %}
             <li>{{ restaurant.name }}</li>
-            <form action="{{ restaurant.id }}/" method="post">
+            <form action="save/{{ restaurant.id }}/" method="post">
                 {% csrf_token %}
                 <input type="submit" value="Save" />
             </form>
