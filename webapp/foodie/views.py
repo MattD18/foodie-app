@@ -25,30 +25,37 @@ def _get_restaurant_object_list(list:RestaurantList):
     return restaurant_object_list
 
 def recs_list(request, restaurant_saved=''):
+    user = request.user
+    user_id = user.id
+    if user_id is not None:
+        recs_list = get_object_or_404(RestaurantList, pk=1) #HARDECODED for now
+        restaurant_object_list = _get_restaurant_object_list(recs_list)
+        context = {
+            'recs_list':recs_list,
+            'restaurant_list':restaurant_object_list
+        }
+        if restaurant_saved=='':
+            # log impression
+            # user_id=2
+            # user = get_object_or_404(FoodieUser, pk=user_id)
+            for restaurant_id in recs_list.restaurant_list:
+                restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+                _log_engagement(user, restaurant, 'impression')
 
-    user = authenticate(request, phone_number='347-555-0002')
+
+        return render(request, 'foodie/recommendations.html', context)
+    else:
+        return HttpResponseRedirect('/foodie/login')
+
+def foodie_login(request):
+    #TODO make proper login page
+    user = authenticate(request, phone_number='347-555-0003')
     if user is not None:
         login(request, user)
+        return HttpResponseRedirect('/foodie/recs')
     else:
         return HttpResponseNotFound('User not logged in')
 
-
-    recs_list = get_object_or_404(RestaurantList, pk=1) #HARDECODED for now
-    restaurant_object_list = _get_restaurant_object_list(recs_list)
-    context = {
-        'recs_list':recs_list,
-        'restaurant_list':restaurant_object_list
-    }
-    if restaurant_saved=='':
-        # log impression
-        # user_id=2
-        # user = get_object_or_404(FoodieUser, pk=user_id)
-        for restaurant_id in recs_list.restaurant_list:
-            restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
-            _log_engagement(user, restaurant, 'impression')
-
-
-    return render(request, 'foodie/recommendations.html', context)
 
 def user_profile_by_id(request, user_id):
     user = get_object_or_404(FoodieUser, pk=user_id)
@@ -64,11 +71,9 @@ def user_profile_by_id(request, user_id):
 def user_profile(request):
 
     user=request.user
-    print(user)
-    if user is not None:
+    user_id = user.id
+    if user_id is not None:
         login(request, user)
-        user_id = request.user.id
-        user = get_object_or_404(FoodieUser, pk=user_id)
         user_restaurant_list_id = user.saved_list
         user_restaurant_list = get_object_or_404(RestaurantList, pk=user_restaurant_list_id)
         user_restaurant_object_list = _get_restaurant_object_list(user_restaurant_list)
@@ -78,7 +83,7 @@ def user_profile(request):
         }
         return render(request, 'foodie/user_profile.html', context)
     else:
-        return HttpResponseNotFound('User not logged in')
+        return HttpResponseRedirect('/foodie/login')
 
 
 def _log_engagement(user, restaurant, engagement_type):
@@ -98,8 +103,6 @@ def save_restaurant(request, restaurant_id):
 
     #TODO: dynamically choose user, for now just hard code
     '''
-    # user_id =2
-    # user = get_object_or_404(FoodieUser, pk=user_id)
     user=request.user
     restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
     user_restaurant_list_object = get_object_or_404(RestaurantList, pk=user.saved_list)

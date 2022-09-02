@@ -5,6 +5,8 @@ from . import views
 app_name ='foodie'
 urlpatterns = [
     path('', views.index, name='index'),
+    # ex: /foodie/login/
+    path('login/', views.foodie_login, name='login'),
     # ex: /foodie/restaurants/4
     path('restaurants/<int:restaurant_id>/', views.restaurant_profile, name='restaurant_profile'),
     # ex: /foodie/recs #past lists should be hidden from user / hard to find when monetizing? would be free access to additonal recs
