@@ -3,3 +3,5 @@ webapp/data/*
 create_test_data.py
 delete_test_data.py
 load_restaurants_to_db.py
+# temporary during dev
+webapp/foodie/migrations/0*.py
