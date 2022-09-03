@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8">
     <title>Test Profile Page</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'foodie/style.css' %}">
+
   </head>
   <body>
     <h1>{{ user.foodie_username }}</h1>
