@@ -24,8 +24,21 @@ class FoodieUser(AbstractBaseUser, PermissionsMixin):
         return self.foodie_username
 
 class Restaurant(models.Model):
+    '''
+    attributes should be useful to user first
+    should be useful to rec system second
+    attributes can be modifiable from UI + backend
+    '''
     name = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
+    address = models.CharField(max_length=200)
+    zipcode = models.CharField(max_length=200)
+    neighborhood = models.CharField(max_length=200)
+    cuisine = models.CharField(max_length=200)
+    tags = ArrayField(
+        models.CharField(max_length=200)
+    )
+    price_range = models.CharField(max_length=200)
     # fields to add then migrate:
         # user_rating
         # address
@@ -51,7 +64,12 @@ class RestaurantList(models.Model):
         return self.name
 
 
-
+class UserRecList(models.Model):
+    '''
+    list to serve to logged in user when visiting foodie/recs/ page
+    '''
+    user = models.ForeignKey(FoodieUser, on_delete=models.CASCADE)
+    restaurant_list = models.ForeignKey(RestaurantList, on_delete=models.CASCADE)
 
 class Engagement(models.Model):
     '''
