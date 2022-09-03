@@ -1,4 +1,5 @@
 **/__pycache__/
+.vscode/
 webapp/data/*
 create_test_data.py
 delete_test_data.py
