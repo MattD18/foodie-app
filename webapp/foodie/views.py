@@ -7,7 +7,13 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 
 from .models import (
-    Restaurant, RestaurantList, FoodieUser, Engagement, UserRecList
+    Restaurant, 
+    RestaurantList, 
+    FoodieUser, 
+    Engagement, 
+    UserRecList,
+    UserRestaurantVisit, 
+    UserRestaurantRating,
 )
 
 
@@ -112,6 +118,7 @@ def _log_engagement(user, restaurant, engagement_type):
     return
 
 
+@login_required
 def save_restaurant(request, restaurant_id):
     '''
     append restaurant id to users save list
@@ -135,3 +142,40 @@ def save_restaurant(request, restaurant_id):
         pass
 
     return redirect('/foodie/recs/saved')
+
+
+@login_required
+def visit_restaurant(request, restaurant_id):
+    '''
+    look into:https://docs.djangoproject.com/en/4.1/topics/forms/
+    '''
+    user = request.user
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+    if not UserRestaurantVisit.objects.filter(user=user, restaurant=restaurant):
+        urv = UserRestaurantVisit(
+            user=user,
+            restaurant=restaurant,
+        )
+        urv.save()
+        _log_engagement(user, restaurant, 'visit')
+    return redirect('/foodie/profile')
+
+
+@login_required
+def rate_restaurant(request, restaurant_id):
+    user = request.user
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+    # for now only allow one rating, later allow editing
+    existing_rating = UserRestaurantRating.objects.filter(
+        user=user, restaurant=restaurant
+    )
+    if not existing_rating:
+        rating = request.POST['rating']
+        urr = UserRestaurantRating(
+            user=user,
+            restaurant=restaurant,
+            rating=rating
+        )
+        urr.save()
+        _log_engagement(user, restaurant, 'rating')
+    return redirect('/foodie/profile')

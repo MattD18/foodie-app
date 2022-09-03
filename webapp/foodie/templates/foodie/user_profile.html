@@ -10,6 +10,16 @@
       <ul>
       {% for restaurant in user_restaurant_list %}
           <li>{{ restaurant.name }}</li>
+          <form action="/foodie/profile/visited/{{ restaurant.id }}/" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Visited" />
+        </form>
+        <form action="/foodie/profile/rated/{{ restaurant.id }}/" method="post">
+          {% csrf_token %}
+          <label for="rating">Rating (0-100): </label>
+          <input id="rating" type="text" name="rating">
+          <input type="submit" value="Submit">
+        </form>
       {% endfor %}
       </ul>
   </body>
