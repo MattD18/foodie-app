@@ -13,7 +13,8 @@ class FoodieUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
     foodie_username = models.CharField(max_length=20, blank=True)
-    saved_list = models.IntegerField(null=True) #TODO figure out fk relationship
+    # TODO figure out fk relationship
+    saved_list = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'phone_number'
@@ -44,7 +45,7 @@ class Restaurant(models.Model):
     # fields to add then migrate:
     # avg_user_rating
     # image url
-    
+
     def __str__(self):
         return self.name
 
