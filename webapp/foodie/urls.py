@@ -15,8 +15,8 @@ urlpatterns = [
     path('recs/', views.recs_list, name='recs'),
     path('recs/<str:saved>', views.recs_list, name='recs_saved'),
     # ex: /foodie/users/
-    path('profile/', views.user_profile, name='user_profile'), ##need to disguise user count in url
-    path('profile/', views.user_profile, name='user_profile'), ##need to disguise user count in url
+    # need to disguise user count in url
+    path('profile/', views.user_profile, name='user_profile'),
     # ex: /foodie/users/2 
     path('users/<int:user_id>/', views.user_profile_by_id, name='user_profile_by_id'), ##need to disguise user count in url
     # handles recs savings
