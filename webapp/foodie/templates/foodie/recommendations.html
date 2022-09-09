@@ -17,10 +17,10 @@
                 <div class="col">
                     <ul class="nav justify-content-end">
                         <li class="nav-item">
-                            <a class="nav-link disabled" href="#">Recs</a>
+                            <a class="nav-link text-primary disabled" href="#">Recs</a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link" href="{% url 'foodie:user_profile' %}">Profile</a>
+                            <a class="nav-link text-dark" href="{% url 'foodie:user_profile' %}">Profile</a>
                         </li>
                     </ul>
                 </div>
@@ -28,7 +28,62 @@
             <div class = "row">
                 <h1 class="text-center">{{ recs_list.name }}</h1>
             </div>
+            {% for restaurant in restaurant_list %}
             <div class="row">
+                <div class="col-1"></div>
+                <div class="col-10">
+                    <div class="container-md">
+                        <div class="row">
+                            <div class="col-6">
+                                <h4>{{ restaurant.name }}</h4>
+                                <p class="fs-6">
+                                    {{ restaurant.address }},
+                                    <br>
+                                    {{ restaurant.neighborhood }}
+                                </p>
+                            </div>
+                            <div class="col text-end">
+                                <p>
+                                    {{ restaurant.cuisine }} 
+                                    <br> 
+                                    ${{ restaurant.price_range }} - ${{ restaurant.price_range }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p>
+                                {% for tag in restaurant.tags %}
+                                <span class="badge rounded-pill text-bg-dark">{{ tag }}</span>
+                                {% endfor %}
+                            </p>
+                            
+                        </div>
+                        <div class="row float-end">
+                            <div class="col">
+                                <a class="btn btn-primary" href="#" role="button">Visit</a>
+                            </div>
+                            <div class="col">
+                                <form action="/foodie/recs/save/{{ restaurant.id }}/" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="divider py-1 bg-light"><hr></div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+                <div class="col-1"></div>
+            </div>
+            
+
+
+
+            {% endfor %}
+            <!-- <div class="row">
                 <div class="col-1"></div>
                 <div class="col-10">
                     {% for restaurant in restaurant_list %}
@@ -48,7 +103,7 @@
                     {% endfor %}
                 </div>
                 <div class="col-1"></div>
-            </div>
+            </div> -->
         </div>
     </body>
 </html>
