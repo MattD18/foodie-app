@@ -60,7 +60,7 @@
                         </div>
                         <div class="row float-end">
                             <div class="col">
-                                <a class="btn btn-primary" href="#" role="button">Visit</a>
+                                <a class="btn btn-primary" href="{{ restaurant.menu_url }}" target="_blank" rel="noopener noreferrer" role="button">Menu</a>
                             </div>
                             <div class="col">
                                 <form action="/foodie/recs/save/{{ restaurant.id }}/" method="post">

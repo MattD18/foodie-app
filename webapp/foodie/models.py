@@ -42,6 +42,8 @@ class Restaurant(models.Model):
         models.CharField(max_length=200)
     )
     price_range = models.CharField(max_length=200)
+    website_url = models.URLField(max_length=200)
+    menu_url = models.URLField(max_length=200)
     # fields to add then migrate:
     # avg_user_rating
     # image url
@@ -74,7 +76,6 @@ class UserRecList(models.Model):
         RestaurantList,
         on_delete=models.CASCADE
     )
-
 
 class UserRestaurantRating(models.Model):
     '''
