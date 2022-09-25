@@ -13,6 +13,7 @@ class FoodieUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
     foodie_username = models.CharField(max_length=20, blank=True)
+    neighborhood = models.CharField(max_length=200)
     # TODO figure out fk relationship
     saved_list = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -77,22 +78,17 @@ class UserRecList(models.Model):
         on_delete=models.CASCADE
     )
 
-class UserRestaurantRating(models.Model):
-    '''
-    consider adding timestamp of rating
-    '''
-    user = models.ForeignKey(FoodieUser,  on_delete=models.CASCADE)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
-    rating = models.IntegerField()
 
-
-class UserRestaurantVisit(models.Model):
+class UserRestaurantReview(models.Model):
     '''
-    eventually ties rating to visit, can only rate once they have visited
+    User review
     '''
     user = models.ForeignKey(FoodieUser, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    visit_date = models.CharField(max_length=200)  # TODO change to datefield
+    rating = models.IntegerField()
     review = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Engagement(models.Model):
@@ -103,8 +99,7 @@ class Engagement(models.Model):
     visit should be own model to store detail about visit (reviews, timing)
     '''
     LOG_ACTIONS = (
-        ('rate', 'User rates restaurant'),
-        ('visit', 'User reports visiting restaurant'),
+        ('review', 'User review restaurant'),
         ('save', 'User saved restaurant'),
         ('impression', 'User shown restaurant'),
     )

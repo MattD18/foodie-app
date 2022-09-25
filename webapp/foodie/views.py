@@ -12,9 +12,21 @@ from .models import (
     FoodieUser, 
     Engagement, 
     UserRecList,
-    UserRestaurantVisit, 
-    UserRestaurantRating,
+    UserRestaurantReview, 
 )
+
+
+def _log_engagement(user, restaurant, engagement_type):
+    '''
+    log result in engagement as well
+    '''
+    e = Engagement(
+        user=user,
+        restaurant=restaurant,
+        action=engagement_type
+    )
+    e.save()
+    return
 
 
 def index(request):
@@ -69,7 +81,11 @@ def foodie_login_auth(request):
         login(request, user)
         return redirect('/foodie/recs')
     else:
-        return HttpResponseNotFound('User not logged in')
+        return redirect('/foodie/onboarding')
+
+
+def onboarding(request):
+    return render(request, 'foodie/onboarding.html')
 
 
 def user_profile_by_id(request, user_id):
@@ -105,19 +121,6 @@ def user_profile(request):
     return render(request, 'foodie/user_profile.html', context)
 
 
-def _log_engagement(user, restaurant, engagement_type):
-    '''
-    log result in engagement as well
-    '''
-    e = Engagement(
-        user=user,
-        restaurant=restaurant,
-        action=engagement_type
-    )
-    e.save()
-    return
-
-
 @login_required
 def save_restaurant(request, restaurant_id):
     '''
@@ -145,37 +148,18 @@ def save_restaurant(request, restaurant_id):
 
 
 @login_required
-def visit_restaurant(request, restaurant_id):
+def review_restaurant(request, restaurant_id):
     '''
     look into:https://docs.djangoproject.com/en/4.1/topics/forms/
     '''
     user = request.user
     restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
-    if not UserRestaurantVisit.objects.filter(user=user, restaurant=restaurant):
-        urv = UserRestaurantVisit(
-            user=user,
-            restaurant=restaurant,
-        )
-        urv.save()
-        _log_engagement(user, restaurant, 'visit')
-    return redirect('/foodie/profile')
-
-
-@login_required
-def rate_restaurant(request, restaurant_id):
-    user = request.user
-    restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
-    # for now only allow one rating, later allow editing
-    existing_rating = UserRestaurantRating.objects.filter(
-        user=user, restaurant=restaurant
+    review = UserRestaurantReview(
+        user=user,
+        restaurant=restaurant,
+        visit_date=request.POST['visit_date'],
+        rating=request.POST['rating']
     )
-    if not existing_rating:
-        rating = request.POST['rating']
-        urr = UserRestaurantRating(
-            user=user,
-            restaurant=restaurant,
-            rating=rating
-        )
-        urr.save()
-        _log_engagement(user, restaurant, 'rating')
+    review.save()
+    _log_engagement(user, restaurant, 'review')
     return redirect('/foodie/profile')

@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="{% static 'foodie/index.css' %}">
     </head>
   <body>
-    <div class="container bg-light">
+    <div class="container bg-light vh-100">
       <div class = "row">
           <div class="col">
               <img src="../../static/foodie/images/sample-logo-four.png" class="img-fluid" alt="Logo">
@@ -27,7 +27,10 @@
       </div>
       <div class = "row">
         <h3>Info</h3>
-        <p>Neighborhood: Williamsburg </p> 
+        <p>
+          <span class="badge rounded-pill text-bg-dark">{{ user.neighborhood }}</span>
+        </p>
+
       </div>
       <div class = "row">
         <h3>Saved List</h1>
@@ -72,25 +75,28 @@
                           </button>
                           <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="exampleModalLabel">Review Restaurant</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                  <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1">Date:</span>
-                                    <input type="text" class="form-control" placeholder="ex: 9/24/22" aria-label="Date" aria-describedby="basic-addon1">
+                              <form id="review-form" action="/foodie/profile/review/" method="post">
+                                {% csrf_token %}
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Review Restaurant</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
-                                  <div class="input-group mb-3">
-                                    <span class="input-group-text" id="basic-addon1">Rating:</span>
-                                    <input type="text" class="form-control" placeholder="0-100" aria-label="Rating" aria-describedby="basic-addon1">
+                                  <div class="modal-body">
+                                    <div class="input-group mb-3">
+                                      <span class="input-group-text" id="basic-addon1">Date:</span>
+                                      <input id="visit_date" name="visit_date" type="text" class="form-control" placeholder="ex: 9/24/22" aria-label="Date" aria-describedby="basic-addon1">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                      <span class="input-group-text" id="basic-addon1">Rating:</span>
+                                      <input id="rating" name="rating" type="text" class="form-control" placeholder="0-100" aria-label="Rating" aria-describedby="basic-addon1">
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
                                   </div>
                                 </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
-                                </div>
-                              </div>
+                              </form>
                             </div>
                           </div>
                       </div>
@@ -105,21 +111,6 @@
           <div class="col-1"></div>
       </div>
       {% endfor %}
-      <!-- <ul>
-      {% for restaurant in user_restaurant_list %}
-          <li>{{ restaurant.name }}</li>
-          <form action="/foodie/profile/visited/{{ restaurant.id }}/" method="post">
-            {% csrf_token %}
-            <input type="submit" value="Visited" />
-        </form>
-        <form action="/foodie/profile/rated/{{ restaurant.id }}/" method="post">
-          {% csrf_token %}
-          <label for="rating">Rating (0-100): </label>
-          <input id="rating" type="text" name="rating">
-          <input type="submit" value="Submit">
-        </form>
-      {% endfor %}
-      </ul>       -->
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -132,6 +123,7 @@
         // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
         var modal = $(this)
         modal.find('.modal-title').text('Review ' + restaurant_name)
+        document.getElementById("review-form").action = "/foodie/profile/review/" + restaurant_id + "/";
       })
     </script>
   
