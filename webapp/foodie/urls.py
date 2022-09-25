@@ -15,11 +15,20 @@ urlpatterns = [
         views.foodie_login,
         name='login'
     ),
-    # ex: /foodie/login/
     path(
         'login/auth/',
         views.foodie_login_auth,
         name='login_auth'
+    ),
+    path(
+        'onboarding/',
+        views.onboarding,
+        name='onboarding'
+    ),
+    path(
+        'onboarding/go/',
+        views.onboarding_first_rec,
+        name='onboarding_first_rec'
     ),
     # ex: /foodie/restaurants/4
     path(

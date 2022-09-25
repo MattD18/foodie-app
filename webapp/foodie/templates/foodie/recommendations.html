@@ -79,27 +79,6 @@
                 <div class="col-1"></div>
             </div>
             {% endfor %}
-            <!-- <div class="row">
-                <div class="col-1"></div>
-                <div class="col-10">
-                    {% for restaurant in restaurant_list %}
-                        <div class="card border-light text-bg-primary mb-3" style="width: 18rem;">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ restaurant.name }}</h5>
-                                <p class="card-subtitle mb-2 text-muted">{{ restaurant.address }}, <br> {{ restaurant.neighborhood }}</p>
-                                <p class="card-text">{{ restaurant.cuisine }}</p>
-                                <p class="card-text">{{ restaurant.tags }}</p>
-                                <p class="card-text">{{ restaurant.price_range }}</p>
-                                <form action="/foodie/recs/save/{{ restaurant.id }}/" method="post">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </form>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                <div class="col-1"></div>
-            </div> -->
         </div>
     </body>
 </html>

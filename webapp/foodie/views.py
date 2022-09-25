@@ -3,16 +3,16 @@ from django.shortcuts import render, redirect
 # Create your views here.
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
 from .models import (
-    Restaurant, 
-    RestaurantList, 
-    FoodieUser, 
+    Restaurant,
+    RestaurantList,
+    FoodieUser,
     Engagement, 
     UserRecList,
-    UserRestaurantReview, 
+    UserRestaurantReview,
 )
 
 
@@ -27,6 +27,25 @@ def _log_engagement(user, restaurant, engagement_type):
     )
     e.save()
     return
+
+
+def _create_new_user(phone_number):
+    # create user w/ save list
+    rl = RestaurantList(
+        restaurant_list=[]
+    )
+    rl.save()
+    u = FoodieUser(
+        phone_number=phone_number,
+        saved_list=rl.id
+    )
+    u.save()
+    # initiate user's rec list / statically set
+    # update with zip code later
+    rl = RestaurantList.objects.get(pk=1)
+    url = UserRecList(user=u, restaurant_list=rl)
+    url.save()
+    return u
 
 
 def index(request):
@@ -81,11 +100,24 @@ def foodie_login_auth(request):
         login(request, user)
         return redirect('/foodie/recs')
     else:
+        new_user = _create_new_user(phone_number=phone_number)
+        login(request, new_user)
         return redirect('/foodie/onboarding')
 
 
 def onboarding(request):
     return render(request, 'foodie/onboarding.html')
+
+
+@login_required
+def onboarding_first_rec(request):
+    user = request.user
+    # update user with neighborhood info,
+    # can later expand to add other info
+    user.neighborhood = request.POST['neighborhood']
+    user.save()
+    # TODO: add new custom rec list based on onboarding info
+    return redirect('/foodie/recs')
 
 
 def user_profile_by_id(request, user_id):
