@@ -42,7 +42,7 @@ class Restaurant(models.Model):
     tags = ArrayField(
         models.CharField(max_length=200)
     )
-    price_range = models.CharField(max_length=200)
+    price_est = models.CharField(max_length=200)
     website_url = models.URLField(max_length=200)
     menu_url = models.URLField(max_length=200)
     # fields to add then migrate:
