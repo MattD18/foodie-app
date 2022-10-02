@@ -10,7 +10,7 @@ from .models import (
     Restaurant,
     RestaurantList,
     FoodieUser,
-    Engagement, 
+    Engagement,
     UserRecList,
     UserRestaurantReview,
 )
