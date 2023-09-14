@@ -1,8 +1,11 @@
 **/__pycache__/
 .vscode/
+*.DS_Store
 webapp/data/*
 create_test_data.py
 delete_test_data.py
 load_restaurants_to_db.py
+webapp/foodie/static/*
+webapp/scss/*
 # temporary during dev
 webapp/foodie/migrations/0*.py

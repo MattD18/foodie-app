@@ -4,7 +4,8 @@ from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 
 # Internal imports
-from .models import Conversation
+from .models import Conversation, Recs
+from foodie.models import FoodieUser
 from .utils import send_message, logger
 
 def index(request):
@@ -18,8 +19,11 @@ def reply(request):
     print(f"Sending the response to this number: {phone_number}")
 
     body = request.POST.get('Body', '')
-    messages = [{"role": "user", "content": body}]
-    response = 'Hello this is Foodie.'
+    # Retrieve the author
+    user = FoodieUser.objects.get(pk=1)
+    rec = Recs.objects.filter(user=user)
+    rec = list(rec)[0].restaurant
+    response = f'Our rec of the day is {rec}'
 
     # Store the conversation in the database
     try:
