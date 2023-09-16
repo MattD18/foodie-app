@@ -40,7 +40,8 @@ class Restaurant(models.Model):
     neighborhood = models.CharField(max_length=200)
     cuisine = models.CharField(max_length=200)
     tags = ArrayField(
-        models.CharField(max_length=200)
+        models.CharField(max_length=200),
+        null=True
     )
     price_est = models.CharField(max_length=200)
     website_url = models.URLField(max_length=200)
@@ -102,6 +103,7 @@ class Engagement(models.Model):
         ('review', 'User review restaurant'),
         ('save', 'User saved restaurant'),
         ('impression', 'User shown restaurant'),
+        ('sms_impression', 'User sent restaurant via sms'),
     )
     user = models.ForeignKey(FoodieUser, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)

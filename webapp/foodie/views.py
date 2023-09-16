@@ -15,38 +15,7 @@ from .models import (
     UserRestaurantReview,
 )
 
-
-def _log_engagement(user, restaurant, engagement_type):
-    '''
-    log result in engagement as well
-    '''
-    e = Engagement(
-        user=user,
-        restaurant=restaurant,
-        action=engagement_type
-    )
-    e.save()
-    return
-
-
-def _create_new_user(phone_number):
-    # create user w/ save list
-    rl = RestaurantList(
-        restaurant_list=[]
-    )
-    rl.save()
-    u = FoodieUser(
-        phone_number=phone_number,
-        saved_list=rl.id
-    )
-    u.save()
-    # initiate user's rec list / statically set
-    # update with zip code later
-    rl = RestaurantList.objects.get(pk=1)
-    url = UserRecList(user=u, restaurant_list=rl)
-    url.save()
-    return u
-
+from .utils import log_engagement, create_new_user
 
 def index(request):
     return HttpResponse("Hello, world. You're at the foodie index.")
@@ -85,7 +54,7 @@ def recs_list(request, saved=None):
         # log impression
         for restaurant_id in recs_list.restaurant_list:
             restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
-            _log_engagement(user, restaurant, 'impression')
+            log_engagement(user, restaurant, 'impression')
     return render(request, 'foodie/recommendations.html', context)
 
 
@@ -100,7 +69,7 @@ def foodie_login_auth(request):
         login(request, user)
         return redirect('/foodie/recs')
     else:
-        new_user = _create_new_user(phone_number=phone_number)
+        new_user = create_new_user(phone_number=phone_number)
         login(request, new_user)
         return redirect('/foodie/onboarding')
 
@@ -172,7 +141,7 @@ def save_restaurant(request, restaurant_id):
         user_restaurant_list_object.restaurant_list = user_restaurant_list
         user_restaurant_list_object.save()
 
-        _log_engagement(user, restaurant, 'save')
+        log_engagement(user, restaurant, 'save')
     else:
         pass
 
@@ -193,5 +162,5 @@ def review_restaurant(request, restaurant_id):
         rating=request.POST['rating']
     )
     review.save()
-    _log_engagement(user, restaurant, 'review')
+    log_engagement(user, restaurant, 'review')
     return redirect('/foodie/profile')

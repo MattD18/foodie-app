@@ -5,8 +5,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Internal imports
 from .models import Conversation, Recs
-from foodie.models import FoodieUser
 from .utils import send_message, logger
+
+from foodie.models import FoodieUser, Restaurant, Engagement
+from foodie.utils import log_engagement
 
 def index(request):
     return HttpResponse("Hello")
@@ -22,23 +24,27 @@ def reply(request):
     # Retrieve the author
     user = FoodieUser.objects.get(pk=1)
     rec = Recs.objects.filter(user=user)
-    rec = list(rec)[0].restaurant
-    response = f'Our rec of the day is {rec}'
+    restaurant = list(rec)[-1].restaurant #get most recent rec
+    restaurant_name = restaurant.name
+    response = f'Our rec of the day is {restaurant_name}'
 
     # Store the conversation in the database
     try:
 
         with transaction.atomic():
-                conversation = Conversation.objects.create(
-                    sender=phone_number,
-                    message=body,
-                    response=response
-                )
-                conversation.save()
-                logger.info(f"Conversation #{conversation.id} stored in database")
+            conversation = Conversation.objects.create(
+                sender=phone_number,
+                message=body,
+                response=response
+            )
+            conversation.save()
+            logger.info(f"Conversation #{conversation.id} stored in database")
     except Exception as e:
         logger.error(f"Error storing conversation in database: {e}")
         return HttpResponse(status=500)
 
     send_message(phone_number, response)
+    # log sms impression
+    log_engagement(user, restaurant, 'sms_impression')
+
     return HttpResponse('')

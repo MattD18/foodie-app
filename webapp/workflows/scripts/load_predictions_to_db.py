@@ -11,12 +11,12 @@ from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 
 from smsbot.models import Recs
-from foodie.models import FoodieUser
+from foodie.models import FoodieUser, Restaurant
 
 
 # Specify the BigQuery dataset and table you want to read
-dataset_id = 'predictions'
-table_id = 'user_daily_recs_v2'
+dataset_id = 'inference'
+table_id = 'sms_daily_rec_predictions'
 
 if __name__ == '__main__':
 
@@ -27,6 +27,16 @@ if __name__ == '__main__':
     print('--EXTRACT--')
     # Construct the full table reference
     table_ref = client.dataset(dataset_id).table(table_id)
+    query = f'''
+    
+    SELECT 
+        max(ts) as ts,
+        user,
+        max_by(restaurant_id, ts) as restaurant_id,
+        max_by(name, ts) as restaurant_name
+    FROM `{table_ref}`
+    group by 1
+    '''
     raw_df = client.query(f'SELECT * FROM `{table_ref}`').to_dataframe()
 
     # transformation / preprocessing
@@ -38,9 +48,13 @@ if __name__ == '__main__':
     num_records_loaded = 0
     for _, record in df.iterrows():
         user = FoodieUser.objects.get(pk=record['user'])
+        print(record['restaurant_id'])
+        restaurant = Restaurant.objects.get(pk=int(record['restaurant_id']))
+        print(restaurant.name)
         model_vals = {
+            'ts': record['ts'],
             'user': user,
-            'restaurant': record['restaurant']
+            'restaurant': restaurant
         }
         r = Recs(**model_vals)
         r.save()

@@ -1,5 +1,5 @@
 from django.db import models
-from foodie.models import FoodieUser
+from foodie.models import FoodieUser, Restaurant
 
 # Create your models here.
 class Conversation(models.Model):
@@ -12,5 +12,8 @@ class Recs(models.Model):
     '''
     daily recs from prediction service for each user
     '''
+    ts = models.DateTimeField()
     user = models.ForeignKey(FoodieUser, on_delete=models.CASCADE)
-    restaurant = models.CharField(max_length=100)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+
+

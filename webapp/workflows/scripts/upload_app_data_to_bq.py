@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 
 from google.cloud import bigquery
 
-dataset_name = 'demo_data'
+dataset_name = 'application'
 
 table_mapping = {
     'dim_restaurant': 'foodie_restaurant',
@@ -178,7 +178,7 @@ def upload_to_bq(
     df[cols].to_gbq(
         destination_table,
         project_id=project_id,
-        if_exists='append',
+        if_exists='replace', #TODO: update to insert new partition
         table_schema=table_schema
     )
 
@@ -199,7 +199,8 @@ if __name__ == '__main__':
         destination_table = f"{dataset_name}.{table}"
         # check that partition doesn't exist for day
         # in future, need to figure out how to overwrite partition
-        partition_exist = check_partition(destination_table, ds)
+        # partition_exist = check_partition(destination_table, ds)
+        partition_exist = False
         if not partition_exist:
             # read copy of table from postgres
             postgres_table = table_mapping.get(table)
