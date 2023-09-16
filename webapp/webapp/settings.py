@@ -35,7 +35,6 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'smsbot',
-    'chatapp',
     'foodie.apps.FoodieConfig',
     'django.contrib.admin',
     'django.contrib.auth',
