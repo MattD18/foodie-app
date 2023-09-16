@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/Users/matthewdalton/Documents/Data Science/Foodie/foodie-app/webapp")
+sys.path.append("/home/mattgeorgedalton/foodie-app/webapp")
 
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")
