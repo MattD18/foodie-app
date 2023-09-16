@@ -16,9 +16,6 @@ from foodie.models import Restaurant, RestaurantList
 # local source is temp, can replace with different ingestion method
 DATA_SOURCE_PATH = 'data/google_maps_restaurants.csv'
 
-COLUMN_MAPPINGS = {
- 'name': 'name'
-}
 
 
 
@@ -41,7 +38,8 @@ if __name__ == '__main__':
     for _, record in df.iterrows():
         # TODO: Add checker
         model_vals = {
-            attribute: record[COLUMN_MAPPINGS.get(attribute)] for attribute in COLUMN_MAPPINGS
+            'name': record['name'],
+            'tags': [],
         }
         r = Restaurant(**model_vals)
         r.save()
