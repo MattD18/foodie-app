@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'smsbot',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -103,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'foodie.FoodieUser'
+AUTH_USER_MODEL = 'smsbot.FoodieUser'
 AUTHENTICATION_BACKENDS = ('foodie.backends.FoodieBackend',)
 LOGIN_URL = '/foodie/login'
 
