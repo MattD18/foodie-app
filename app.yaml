@@ -20,7 +20,7 @@ runtime: python39
 
 env_variables:
   # This setting is used in settings.py to configure your ALLOWED_HOSTS
-  APPENGINE_URL: foodie-355420.uc.r.appspot.com
+  APPENGINE_URL: https://foodie-355420.uc.r.appspot.com
 
 # [END gaestd_py_django_app_yaml]
 # [END django_app]
