@@ -70,11 +70,7 @@ DEBUG = env("DEBUG")
 # to App Engine. This code takes the URL and converts it to both these settings formats.
 APPENGINE_URL = env("APPENGINE_URL", default=None)
 if APPENGINE_URL:
-    # Ensure a scheme is present in the URL before it's processed.
-    if not urlparse(APPENGINE_URL).scheme:
-        APPENGINE_URL = f"https://{APPENGINE_URL}"
-
-    ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc]
+    ALLOWED_HOSTS = ['foodie-355420.uk.r.appspot.com']
     CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
     SECURE_SSL_REDIRECT = True
 else:
@@ -170,7 +166,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = 'smsbot.FoodieUser'
-AUTHENTICATION_BACKENDS = ('foodie.backends.FoodieBackend',)
+AUTHENTICATION_BACKENDS = ('smsbot.backends.FoodieBackend',)
 LOGIN_URL = '/foodie/login'
 
 # Internationalization
