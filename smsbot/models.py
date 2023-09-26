@@ -31,7 +31,8 @@ class Restaurant(models.Model):
     '''
     name = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
-    google_maps_url = models.URLField(max_length=200)
+    google_maps_url = models.URLField(max_length=200, null=True)
+    google_maps_id = models.CharField(max_length=200, null=True)
     
     def __str__(self):
         return self.name
