@@ -21,6 +21,10 @@ runtime: python39
 env_variables:
   # This setting is used in settings.py to configure your ALLOWED_HOSTS
   APPENGINE_URL: https://foodie-355420.uc.r.appspot.com
-
+  # https://cloud.google.com/appengine/docs/legacy/standard/python/connecting-vpc
+  GAE_USE_SOCKETS_HTTPLIB : 'anyvalue'
 # [END gaestd_py_django_app_yaml]
 # [END django_app]
+
+vpc_access_connector:
+  name: projects/foodie-355420/locations/us-east4/connectors/foodie
