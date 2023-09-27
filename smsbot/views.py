@@ -6,8 +6,10 @@ from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
+import numpy as np
+
 # Internal imports
-from .models import FoodieUser, Restaurant, Engagement, Conversation, Recs
+from .models import FoodieUser, Restaurant, Engagement, Conversation
 from .utils import send_message, logger, log_engagement, create_new_user
 
 def index(request):
@@ -23,20 +25,13 @@ def reply(request):
     body = request.POST.get('Body', '')
     # Retrieve the author
     user = request.user
-    print(user.id)
-    rec = Recs.objects.filter(user=user)
-    if rec.exists():
-        restaurant = list(rec)[-1].restaurant #get most recent rec
-        restaurant_name = restaurant.name
-        response = f'Our rec of the day is {restaurant_name}'
-        log_impression = True
-    else:
-        log_impression = False
-        response = f'Please try again later'
 
+    # Generate a restaurant recommendation (default rec is random)
+    restaurant = np.random.choice(Restaurant.objects.all())
+    response = f'Our rec for you is {restaurant.name}. \nLink: {restaurant.google_maps_url} \nFor more recs, text \"Rec me\"'
+  
     # Store the conversation in the database
     try:
-
         with transaction.atomic():
             conversation = Conversation.objects.create(
                 sender=phone_number,
@@ -51,8 +46,7 @@ def reply(request):
 
     send_message(phone_number, response)
     # log sms impression
-    if log_impression:
-        log_engagement(user, restaurant, 'sms_impression')
+    log_engagement(user, restaurant, 'sms_impression')
 
     return HttpResponse('')
 
@@ -65,5 +59,5 @@ def sms_login(request):
     else:
         new_user = create_new_user(phone_number=phone_number)
         login(request, new_user)
-        # can optionally direct to onboarding
+        # TODO: for new users redirect to onboarding flow
     return redirect('/smsbot/message/')

@@ -51,15 +51,10 @@ class Engagement(models.Model):
 
 # Create your models here.
 class Conversation(models.Model):
+    '''
+    converation with user
+    '''
+    ts = models.DateTimeField(auto_now_add=True, blank=True)
     sender = models.CharField(max_length=15)
     message = models.CharField(max_length=2000)
     response = models.CharField(max_length=2000)
-
-# Create your models here.
-class Recs(models.Model):
-    '''
-    daily recs from prediction service for each user
-    '''
-    ts = models.DateTimeField()
-    user = models.ForeignKey(FoodieUser, on_delete=models.CASCADE)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
