@@ -28,9 +28,8 @@ def reply(request):
 
     # Generate a restaurant recommendation (default rec is random)
     restaurant = np.random.choice(Restaurant.objects.all())
-    # response = f'Our rec for you is {restaurant.name}. \nLink: {restaurant.google_maps_url} \nFor more recs, text \"Rec me\"'
-    response = f'Our rec for you is {restaurant.name}.\n\nFor more recs, text \"Rec me\"'
-  
+    response = f'Our rec for you is {restaurant.name}. \n\nLink:\n{restaurant.google_maps_url}'
+
     # Store the conversation in the database
     try:
         with transaction.atomic():
