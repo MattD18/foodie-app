@@ -1,0 +1,4 @@
+cron:
+- description: upload app data to warehouse
+  url: /smsbot/upload_warehouse/
+  schedule: every 24 hours

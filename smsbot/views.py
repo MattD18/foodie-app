@@ -31,7 +31,7 @@ def reply(request):
 
     # Generate a restaurant recommendation (default rec is random)
     restaurant = np.random.choice(Restaurant.objects.all())
-    response = f'Our rec for you is {restaurant.name}. \n\nLink:\n{restaurant.google_maps_url}'
+    response = f'Our rec for you is {restaurant.name}: \n\n{restaurant.google_maps_url}'
 
     # Store the conversation in the database
     try:
@@ -73,7 +73,6 @@ def upload_warehouse(request):
     '''
 
     is_cron = request.headers.get('X-Appengine-Cron', False)
-    is_cron = True
     if not is_cron:
         return HttpResponseBadRequest()
     upload_app_data_to_bq()
