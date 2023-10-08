@@ -1,5 +1,5 @@
 # Third-party imports
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.db import transaction
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
@@ -9,11 +9,14 @@ from django.contrib.auth.decorators import login_required
 import numpy as np
 
 # Internal imports
-from .models import FoodieUser, Restaurant, Engagement, Conversation
+from .models import Restaurant, Conversation
 from .utils import send_message, logger, log_engagement, create_new_user
+from .data_transfer import upload_app_data_to_bq
+
 
 def index(request):
     return HttpResponse("Hello")
+
 
 @csrf_exempt
 @login_required(login_url="/smsbot/login/")
@@ -50,6 +53,7 @@ def reply(request):
 
     return HttpResponse('')
 
+
 @csrf_exempt
 def sms_login(request):
     phone_number = request.POST.get('From').split("phone:")[-1]
@@ -61,3 +65,16 @@ def sms_login(request):
         login(request, new_user)
         # TODO: for new users redirect to onboarding flow
     return redirect('/smsbot/message/')
+
+
+def upload_warehouse(request):
+    '''
+    Cron job reference: https://github.com/sungchun12/schedule-python-script-using-Google-Cloud/tree/master/chicago_traffic
+    '''
+
+    is_cron = request.headers.get('X-Appengine-Cron', False)
+    is_cron = True
+    if not is_cron:
+        return HttpResponseBadRequest()
+    upload_app_data_to_bq()
+    return HttpResponse('')
