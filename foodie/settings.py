@@ -73,6 +73,11 @@ if APPENGINE_URL:
     ALLOWED_HOSTS = ['foodie-355420.uk.r.appspot.com']
     CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
     SECURE_SSL_REDIRECT = True
+    SECURE_REDIRECT_EXEMPT = [
+        'smsbot/upload_warehouse/',  # Exempt the URL '/health-check/' from SSL redirection
+        
+    ]   
+
 else:
     ALLOWED_HOSTS = ["*"]
 # [END gaestd_py_django_csrf]

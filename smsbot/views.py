@@ -15,7 +15,7 @@ from .data_transfer import upload_app_data_to_bq
 
 
 def index(request):
-    return HttpResponse("Hello")
+    return HttpResponse("Hello World")
 
 
 @csrf_exempt
