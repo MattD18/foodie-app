@@ -6,4 +6,6 @@ urlpatterns = [
     path("message/", views.reply),
     path("login/", views.sms_login, name='login'),
     path("upload_warehouse/", views.upload_warehouse, name='upload_warehouse'),
+    path("download_features/", views.download_features, name='download_features'),
+    
 ]

@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
@@ -37,6 +36,7 @@ class Restaurant(models.Model):
     def __str__(self):
         return self.name
 
+
 class Engagement(models.Model):
     '''
     used to log interactions such as impressions
@@ -49,6 +49,7 @@ class Engagement(models.Model):
     action = models.CharField(max_length=20, choices=LOG_ACTIONS)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
 # Create your models here.
 class Conversation(models.Model):
     '''
@@ -58,3 +59,12 @@ class Conversation(models.Model):
     sender = models.CharField(max_length=15)
     message = models.CharField(max_length=2000)
     response = models.CharField(max_length=2000)
+
+
+class RestaurantFeatures(models.Model):
+    '''
+    Restaurant features used for recommender system
+    '''
+    restaurant = models.OneToOneField(Restaurant, primary_key=True, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    ranking_quality_score = models.FloatField()

@@ -75,7 +75,7 @@ if APPENGINE_URL:
     SECURE_SSL_REDIRECT = True
     SECURE_REDIRECT_EXEMPT = [
         'smsbot/upload_warehouse/',  # Exempt the URL '/health-check/' from SSL redirection
-        
+        'smsbot/download_features/',  # Exempt the URL '/health-check/' from SSL redirection
     ]   
 
 else:

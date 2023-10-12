@@ -2,3 +2,6 @@ cron:
 - description: upload app data to warehouse
   url: /smsbot/upload_warehouse/
   schedule: every 24 hours
+- description: download features to application
+  url: /smsbot/download_features/
+  schedule: every 168 hours

@@ -11,11 +11,11 @@ import numpy as np
 # Internal imports
 from .models import Restaurant, Conversation
 from .utils import send_message, logger, log_engagement, create_new_user
-from .data_transfer import upload_app_data_to_bq
+from .data_transfer import upload_app_data_to_bq, download_features_from_bq
 
 
 def index(request):
-    return HttpResponse("Hello World")
+    return HttpResponse("Hello World, it's Foodie")
 
 
 @csrf_exempt
@@ -76,4 +76,16 @@ def upload_warehouse(request):
     if not is_cron:
         return HttpResponseBadRequest()
     upload_app_data_to_bq()
+    return HttpResponse('')
+
+
+def download_features(request):
+    '''
+    Cron job reference: https://github.com/sungchun12/schedule-python-script-using-Google-Cloud/tree/master/chicago_traffic
+    '''
+
+    is_cron = request.headers.get('X-Appengine-Cron', False)
+    if not is_cron:
+        return HttpResponseBadRequest()
+    download_features_from_bq()
     return HttpResponse('')

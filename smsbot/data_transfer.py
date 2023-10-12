@@ -11,6 +11,13 @@ import environ
 import io
 from google.cloud import secretmanager
 
+
+from .models import (
+    Restaurant,
+    RestaurantFeatures
+)
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -256,3 +263,35 @@ def upload_app_data_to_bq():
             project_id,
         )
         print(f"uploaded {ds} partition for {table}")
+
+def download_features_from_bq():
+    '''
+    download restaurant features to server and upload to table
+    '''
+    # establish bigquery connection
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")    # establish postgres connection
+    conn_str = os.environ.get("DATABASE_URL")
+    conn_str = fix_conn_str(conn_str)
+    engine = create_engine(conn_str)
+    # pull restaurant features
+    query  = '''
+        SELECT 
+            id,
+            google_maps_rating as ranking_quality_score
+        FROM warehouse_features.restaurant_basic_google_maps
+    '''
+    df = pd.read_gbq(query, project_id=project_id)
+    print(df.shape)
+    print(df.head(1))
+    # write features to db
+    for i, record in df.iterrows():
+        restaurant = Restaurant.objects.get(pk=record['id'])
+        rf, _ = RestaurantFeatures.objects.update_or_create(
+            restaurant=restaurant,
+            defaults={
+                'created_at':datetime.datetime.now(),
+                'ranking_quality_score':record['ranking_quality_score'],
+            }
+        )
+        if (i % 500 == 0):
+            print(i)
