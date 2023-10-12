@@ -12,10 +12,10 @@ import numpy as np
 from .models import Restaurant, Conversation
 from .utils import send_message, logger, log_engagement, create_new_user
 from .data_transfer import upload_app_data_to_bq, download_features_from_bq
-
+from .rec_engine import RecEngine
 
 def index(request):
-    return HttpResponse("Hello World, it's Foodie")
+    return HttpResponse("Hello World")
 
 
 @csrf_exempt
@@ -29,8 +29,11 @@ def reply(request):
     # Retrieve the author
     user = request.user
 
-    # Generate a restaurant recommendation (default rec is random)
-    restaurant = np.random.choice(Restaurant.objects.all())
+    # Generate a restaurant recommendation
+    rec_engine = RecEngine()
+    query = None
+    rec = rec_engine.get_recommendation(query)
+    restaurant = Restaurant.objects.get(id=rec)
     response = f'Our rec for you is {restaurant.name}: \n\n{restaurant.google_maps_url}'
 
     # Store the conversation in the database
