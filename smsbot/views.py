@@ -15,7 +15,7 @@ from .data_transfer import upload_app_data_to_bq, download_features_from_bq
 from .rec_engine import RecEngine
 
 def index(request):
-    return HttpResponse("Hello World")
+    return HttpResponse("Hello world, it's Foodie")
 
 
 @csrf_exempt
@@ -24,17 +24,29 @@ def reply(request):
     # Extract the phone number from the incoming webhook request
     phone_number = request.POST.get('From').split("phone:")[-1]
     print(f"Sending the response to this number: {phone_number}")
-
+    # get user message
     body = request.POST.get('Body', '')
     # Retrieve the author
     user = request.user
 
-    # Generate a restaurant recommendation
-    rec_engine = RecEngine()
-    query = None
-    rec = rec_engine.get_recommendation(query)
-    restaurant = Restaurant.objects.get(id=rec)
-    response = f'Our rec for you is {restaurant.name}: \n\n{restaurant.google_maps_url}'
+    # classify intent
+    intent = 'fallback'
+    if body == 'Rec me':
+        intent = 'recommendation'
+
+    # formulate response
+    if intent == 'recommendation':
+        # Generate a restaurant recommendation
+        rec_engine = RecEngine()
+        query = None
+        rec = rec_engine.get_recommendation(query)
+        restaurant = Restaurant.objects.get(id=rec)
+        response = f'Our rec for you is {restaurant.name}: \n\n{restaurant.google_maps_url}'
+    else:
+        response = 'Text "Rec me" to receive our restaurant pick for you'
+
+    # send response
+    send_message(phone_number, response)
 
     # Store the conversation in the database
     try:
@@ -50,9 +62,9 @@ def reply(request):
         logger.error(f"Error storing conversation in database: {e}")
         return HttpResponse(status=500)
 
-    send_message(phone_number, response)
     # log sms impression
-    log_engagement(user, restaurant, 'sms_impression')
+    if intent == 'recommendation':
+        log_engagement(user, restaurant, 'sms_impression')
 
     return HttpResponse('')
 
