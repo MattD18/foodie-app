@@ -22,10 +22,12 @@ class RecEngine():
         neighborhood = query_parameters.get('neighborhood')
         # filter on neighborhood query if applicable
         if neighborhood:
-            n = Neighborhood.objects.get(name=neighborhood)
-            if n:
+
+            try:
+                n = Neighborhood.objects.get(name=neighborhood)
                 rec_set = [r.restaurant.id for r in RestaurantFeatures.objects.filter(neighborhood=n)]
-            else: 
+            except Neighborhood.DoesNotExist:
+                n = None
                 rec_set = []
         else:
             rec_set = [r.id for r in Restaurant.objects.all()]
@@ -42,10 +44,11 @@ class RecEngine():
                 'id':rec,
                 'ranking_qualty_score':ranking_quality_score
             })
-        ranked_rec_set = pd.DataFrame(ranked_rec_set).sort_values(by='ranking_qualty_score', ascending=False)
-        ranked_rec_set = ranked_rec_set[ranked_rec_set['ranking_qualty_score'] != 5.0]
-        print(ranked_rec_set.head(1), ranked_rec_set.tail(1))
-        ranked_rec_set = ranked_rec_set['id'].to_list()
+        if ranked_rec_set:
+            ranked_rec_set = pd.DataFrame(ranked_rec_set).sort_values(by='ranking_qualty_score', ascending=False)
+            ranked_rec_set = ranked_rec_set[ranked_rec_set['ranking_qualty_score'] != 5.0]
+            print(ranked_rec_set.head(1), ranked_rec_set.tail(1))
+            ranked_rec_set = ranked_rec_set['id'].to_list()
         return ranked_rec_set
 
     def business_logic_pass(self, rec_set, query_parameters):

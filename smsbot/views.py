@@ -34,20 +34,20 @@ def reply(request):
     if 'Rec me' in body:
         intent = 'recommendation'
 
-    # formulate response
-    if intent == 'recommendation':
-        # Generate a restaurant recommendation
-        rec_engine = RecEngine()
-        query = body
-        rec = rec_engine.get_recommendation(query)
-        if rec is None:
-            response = 'No recs found. Text "Rec me" to receive our restaurant pick for you\n\nOr try "Rec me <neighborhood>" to search a specifc area, for example "Rec me Williamsburg"'
-        else:
-            restaurant = Restaurant.objects.get(id=rec)
-            if restaurant is not None:
-                response = f'Our rec for you is {restaurant.name}: \n\n{restaurant.google_maps_url}'
-            else:
+        # formulate response
+        if intent == 'recommendation':
+            # Generate a restaurant recommendation
+            rec_engine = RecEngine()
+            query = body
+            rec = rec_engine.get_recommendation(query)
+            if rec is None:
                 response = 'No recs found. Text "Rec me" to receive our restaurant pick for you\n\nOr try "Rec me <neighborhood>" to search a specifc area, for example "Rec me Williamsburg"'
+            else:
+                restaurant = Restaurant.objects.get(id=rec)
+                if restaurant is not None:
+                    response = f'Our rec for you is {restaurant.name}: \n\n{restaurant.google_maps_url}'
+                else:
+                    response = 'No recs found. Text "Rec me" to receive our restaurant pick for you\n\nOr try "Rec me <neighborhood>" to search a specifc area, for example "Rec me Williamsburg"'
     else:
         response = 'Text "Rec me" to receive our restaurant pick for you\n\nOr try "Rec me <neighborhood>" to search a specifc area, for example "Rec me Williamsburg"'
 
