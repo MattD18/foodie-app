@@ -285,7 +285,11 @@ def download_features_from_bq():
     # write features to db
     for i, record in df.iterrows():
         restaurant = Restaurant.objects.get(pk=record['id'])
-        neighborhood = Neighborhood.objects.get(pk=record['neighborhood_id'])
+        try:
+            neighborhood = Neighborhood.objects.get(pk=record['neighborhood_id'])
+        except Neighborhood.DoesNotExist:
+            neighborhood = None
+        
         rf, _ = RestaurantFeatures.objects.update_or_create(
             restaurant=restaurant,
             defaults={

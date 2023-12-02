@@ -1,7 +1,9 @@
+import re
+
 import numpy as np
 import pandas as pd
 
-from .models import Restaurant, RestaurantFeatures
+from .models import Restaurant, RestaurantFeatures, Neighborhood
 
 
 class RecEngine():
@@ -10,18 +12,29 @@ class RecEngine():
         pass
 
     def get_recommendation(self, query):
-        candidate_set = self.retrieval_pass(query)
-        ranked_set = self.ranking_pass(candidate_set, query)
-        rec = self.business_logic_pass(ranked_set, query)
+        query_parameters = self.entity_resolution(query)
+        candidate_set = self.retrieval_pass(query_parameters)
+        ranked_set = self.ranking_pass(candidate_set, query_parameters)
+        rec = self.business_logic_pass(ranked_set, query_parameters)
         return rec
 
-    def retrieval_pass(self, query, retrieval_cap=100):
-        rec_set = [r.id for r in Restaurant.objects.all()]
-        rec_set = np.random.choice(rec_set, retrieval_cap).tolist()
+    def retrieval_pass(self, query_parameters, retrieval_cap=100):
+        neighborhood = query_parameters.get('neighborhood')
+        # filter on neighborhood query if applicable
+        if neighborhood:
+            n = Neighborhood.objects.get(name=neighborhood)
+            if n:
+                rec_set = [r.restaurant.id for r in RestaurantFeatures.objects.filter(neighborhood=n)]
+            else: 
+                rec_set = []
+        else:
+            rec_set = [r.id for r in Restaurant.objects.all()]
+        if rec_set:
+            rec_set = np.random.choice(rec_set, retrieval_cap).tolist()
         print(len(rec_set))
         return rec_set
 
-    def ranking_pass(self, rec_set, query):
+    def ranking_pass(self, rec_set, query_parameters):
         ranked_rec_set = []
         for rec in rec_set:
             ranking_quality_score = RestaurantFeatures.objects.get(restaurant=rec).ranking_quality_score
@@ -35,7 +48,27 @@ class RecEngine():
         ranked_rec_set = ranked_rec_set['id'].to_list()
         return ranked_rec_set
 
-    def business_logic_pass(self, rec_set, query):
-        rec = rec_set[0]
-        print(rec)
+    def business_logic_pass(self, rec_set, query_parameters):
+        if rec_set:
+            rec = rec_set[0]
+            print(rec)
+        else:
+            rec = None
         return rec
+
+    def entity_resolution(self, query):
+        # Define a regular expression pattern
+        pattern = r'Rec me\s+(\w+(?:\s+\w+)*)'
+        # Use re.search to find the match
+        match = re.search(pattern, query)
+        # Check if a match is found and print the result
+        if match:
+            neighborhood = match.group(1)
+            print(neighborhood)
+        else:
+            neighborhood = None
+            print("No match found")
+        query_parameters = {
+            'neighborhood': neighborhood
+        }
+        return query_parameters
