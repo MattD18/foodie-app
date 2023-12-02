@@ -8,15 +8,14 @@ django.setup()
 from django.core.wsgi import get_wsgi_application
 from django.core.wsgi import get_wsgi_application
 
-from smsbot.models import Restaurant
-
+from smsbot.models import Neighborhood
 
 import pandas as pd
 
 
 # Purpose - to be run on db set-up to first load in restaurants
 # local source is temp, can replace with different ingestion method
-DATA_SOURCE_PATH = 'local_data/google_restaurant_data.csv'
+DATA_SOURCE_PATH = 'local_data/neighborhoods.csv'
 DATABASE = os.environ['DATABASE_URL']
 
 
@@ -37,16 +36,15 @@ if __name__ == '__main__':
     print('--LOAD--')
     num_records_loaded = 0
     # only use to update empty database for now, TODO figure out incremental updates
-    assert len(Restaurant.objects.all()) == 0
+    assert len(Neighborhood.objects.all()) == 0
     for _, record in df.iterrows():
         # TODO: Add checker
         fields = {
             'name': record['name'],
-            'created_at': record['created_at'],
-            'google_maps_url': record['google_maps_url'],
-            'google_maps_id': record['google_maps_id'],
+            'borough': record['borough']
         }
-        r = Restaurant(**fields)
-        r.save()
+        # assumes neighborhoods are properly sorted for id matching
+        n = Neighborhood(**fields)
+        n.save()
         num_records_loaded += 1
     print(num_records_loaded)

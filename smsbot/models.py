@@ -37,6 +37,14 @@ class Restaurant(models.Model):
         return self.name
 
 
+class Neighborhood(models.Model):
+    '''
+    Neighborhoods
+    '''
+    name = models.CharField(max_length=200)
+    borough = models.CharField(max_length=200)
+
+
 class Engagement(models.Model):
     '''
     used to log interactions such as impressions
@@ -68,3 +76,4 @@ class RestaurantFeatures(models.Model):
     restaurant = models.OneToOneField(Restaurant, primary_key=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     ranking_quality_score = models.FloatField()
+    neighborhood = models.ForeignKey(Neighborhood, on_delete=models.CASCADE, null=True)

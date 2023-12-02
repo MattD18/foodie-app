@@ -14,6 +14,7 @@ from google.cloud import secretmanager
 
 from .models import (
     Restaurant,
+    Neighborhood,
     RestaurantFeatures
 )
 
@@ -270,14 +271,12 @@ def download_features_from_bq():
     '''
     # establish bigquery connection
     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")    # establish postgres connection
-    conn_str = os.environ.get("DATABASE_URL")
-    conn_str = fix_conn_str(conn_str)
-    engine = create_engine(conn_str)
     # pull restaurant features
     query  = '''
         SELECT 
             id,
-            google_maps_rating as ranking_quality_score
+            google_maps_rating as ranking_quality_score,
+            neighborhood_id
         FROM warehouse_features.restaurant_basic_google_maps
     '''
     df = pd.read_gbq(query, project_id=project_id)
@@ -286,11 +285,13 @@ def download_features_from_bq():
     # write features to db
     for i, record in df.iterrows():
         restaurant = Restaurant.objects.get(pk=record['id'])
+        neighborhood = Neighborhood.objects.get(pk=record['neighborhood_id'])
         rf, _ = RestaurantFeatures.objects.update_or_create(
             restaurant=restaurant,
             defaults={
-                'created_at':datetime.datetime.now(),
-                'ranking_quality_score':record['ranking_quality_score'],
+                'created_at': datetime.datetime.now(),
+                'ranking_quality_score': record['ranking_quality_score'],
+                'neighborhood': neighborhood,
             }
         )
         if (i % 500 == 0):
