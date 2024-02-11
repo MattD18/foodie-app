@@ -3,7 +3,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from .models import Restaurant, RestaurantFeatures, Neighborhood
+from .models import Restaurant
 
 
 class RecEngine():
@@ -18,37 +18,42 @@ class RecEngine():
         rec = self.business_logic_pass(ranked_set, query_parameters)
         return rec
 
+    #TODO: revamp for database migration
     def retrieval_pass(self, query_parameters, retrieval_cap=100):
-        neighborhood = query_parameters.get('neighborhood')
-        # filter on neighborhood query if applicable
-        if neighborhood:
+        rec_set = []
+        pass
+        # neighborhood = query_parameters.get('neighborhood')
+        # # filter on neighborhood query if applicable
+        # if neighborhood:
 
-            try:
-                n = Neighborhood.objects.get(name=neighborhood)
-                rec_set = [r.restaurant.id for r in RestaurantFeatures.objects.filter(neighborhood=n)]
-            except Neighborhood.DoesNotExist:
-                n = None
-                rec_set = []
-        else:
-            rec_set = [r.id for r in Restaurant.objects.all()]
-        if rec_set:
-            rec_set = np.random.choice(rec_set, retrieval_cap).tolist()
-        print(len(rec_set))
+        #     try:
+        #         n = Neighborhood.objects.get(name=neighborhood)
+        #         rec_set = [r.restaurant.id for r in RestaurantFeatures.objects.filter(neighborhood=n)]
+        #     except Neighborhood.DoesNotExist:
+        #         n = None
+        #         rec_set = []
+        # else:
+        #     rec_set = [r.id for r in Restaurant.objects.all()]
+        # if rec_set:
+        #     rec_set = np.random.choice(rec_set, retrieval_cap).tolist()
+        # print(len(rec_set))
         return rec_set
 
+    #TODO: revamp for database migration
     def ranking_pass(self, rec_set, query_parameters):
         ranked_rec_set = []
-        for rec in rec_set:
-            ranking_quality_score = RestaurantFeatures.objects.get(restaurant=rec).ranking_quality_score
-            ranked_rec_set.append({
-                'id':rec,
-                'ranking_qualty_score':ranking_quality_score
-            })
-        if ranked_rec_set:
-            ranked_rec_set = pd.DataFrame(ranked_rec_set).sort_values(by='ranking_qualty_score', ascending=False)
-            ranked_rec_set = ranked_rec_set[ranked_rec_set['ranking_qualty_score'] != 5.0]
-            print(ranked_rec_set.head(1), ranked_rec_set.tail(1))
-            ranked_rec_set = ranked_rec_set['id'].to_list()
+        # for rec in rec_set:
+        #     ranking_quality_score = RestaurantFeatures.objects.get(restaurant=rec).ranking_quality_score
+        #     ranked_rec_set.append({
+        #         'id':rec,
+        #         'ranking_qualty_score':ranking_quality_score
+        #     })
+        # if ranked_rec_set:
+        #     ranked_rec_set = pd.DataFrame(ranked_rec_set).sort_values(by='ranking_qualty_score', ascending=False)
+        #     ranked_rec_set = ranked_rec_set[ranked_rec_set['ranking_qualty_score'] != 5.0]
+        #     print(ranked_rec_set.head(1), ranked_rec_set.tail(1))
+        #     ranked_rec_set = ranked_rec_set['id'].to_list()
+        pass
         return ranked_rec_set
 
     def business_logic_pass(self, rec_set, query_parameters):

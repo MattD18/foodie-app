@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
@@ -29,21 +30,15 @@ class Restaurant(models.Model):
     attributes can be modifiable from UI + backend
     '''
     name = models.CharField(max_length=200)
+    address = models.CharField(max_length=200, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     google_maps_url = models.URLField(max_length=200, null=True)
-    google_maps_id = models.CharField(max_length=200, null=True)
+    ranking_quality_score = models.FloatField(null=True)
+    place_tags = ArrayField(models.CharField(max_length=200), null=True)
+
     
     def __str__(self):
         return self.name
-
-
-class Neighborhood(models.Model):
-    '''
-    Neighborhoods
-    '''
-    name = models.CharField(max_length=200)
-    borough = models.CharField(max_length=200)
-
 
 class Engagement(models.Model):
     '''
@@ -67,13 +62,3 @@ class Conversation(models.Model):
     sender = models.CharField(max_length=15)
     message = models.CharField(max_length=2000)
     response = models.CharField(max_length=2000)
-
-
-class RestaurantFeatures(models.Model):
-    '''
-    Restaurant features used for recommender system
-    '''
-    restaurant = models.OneToOneField(Restaurant, primary_key=True, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    ranking_quality_score = models.FloatField()
-    neighborhood = models.ForeignKey(Neighborhood, on_delete=models.CASCADE, null=True)

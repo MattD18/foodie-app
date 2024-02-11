@@ -13,9 +13,7 @@ from google.cloud import secretmanager
 
 
 from .models import (
-    Restaurant,
-    Neighborhood,
-    RestaurantFeatures
+    Restaurant
 )
 
 
@@ -263,40 +261,144 @@ def upload_app_data_to_bq():
             ds,
             project_id,
         )
-        print(f"uploaded {ds} partition for {table}")
-
+    
+#TODO: Refactor for new schema
 def download_features_from_bq():
     '''
     download restaurant features to server and upload to table
     '''
-    # establish bigquery connection
-    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")    # establish postgres connection
-    # pull restaurant features
-    query  = '''
-        SELECT 
-            id,
-            google_maps_rating as ranking_quality_score,
-            neighborhood_id
-        FROM warehouse_features.restaurant_basic_google_maps
+    pass
+#     # establish bigquery connection
+#     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")    # establish postgres connection
+#     # pull restaurant features
+#     query  = '''
+#         SELECT 
+#             id,
+#             google_maps_rating as ranking_quality_score,
+#             neighborhood_id
+#         FROM warehouse_features.restaurant_basic_google_maps
+#     '''
+#     df = pd.read_gbq(query, project_id=project_id)
+#     print(df.shape)
+#     print(df.head(1))
+#     # write features to db
+#     for i, record in df.iterrows():
+#         restaurant = Restaurant.objects.get(pk=record['id'])
+#         try:
+#             neighborhood = Neighborhood.objects.get(pk=record['neighborhood_id'])
+#         except Neighborhood.DoesNotExist:
+#             neighborhood = None
+        
+#         rf, _ = RestaurantFeatures.objects.update_or_create(
+#             restaurant=restaurant,
+#             defaults={
+#                 'created_at': datetime.datetime.now(),
+#                 'ranking_quality_score': record['ranking_quality_score'],
+#                 'neighborhood': neighborhood,
+#             }
+#         )
+#         if (i % 500 == 0):
+#             print(i)
+
+
+### Load restaurants from scraper into DB###
+
+# get existing google maps to application mappings
+def get_id_mapping_dict():
+    
+    query = '''
+
+        select
+            google_maps_id,
+            application_id
+        from restaurant_data.restaurant_id_mapping
+
     '''
     df = pd.read_gbq(query, project_id=project_id)
-    print(df.shape)
-    print(df.head(1))
-    # write features to db
-    for i, record in df.iterrows():
-        restaurant = Restaurant.objects.get(pk=record['id'])
-        try:
-            neighborhood = Neighborhood.objects.get(pk=record['neighborhood_id'])
-        except Neighborhood.DoesNotExist:
-            neighborhood = None
-        
-        rf, _ = RestaurantFeatures.objects.update_or_create(
-            restaurant=restaurant,
-            defaults={
+
+    id_mapping_dict = dict(zip(df['google_maps_id'], df['application_id']))
+    return id_mapping_dict
+
+
+# get new restauarnts 
+def get_google_maps_restaurant_df(ds):
+    query = f'''
+
+        SELECT
+          name,
+          formatted_address as address,
+          max_by(place_id, updated_at) as google_maps_id,
+          max_by(url, updated_at) as google_maps_url
+        FROM `foodie-355420.restaurant_data.google_maps_place_logs`
+        where updated_at >= '{ds}'
+        group by 1, 2
+
+    '''
+    
+    df = pd.read_gbq(query, project_id=project_id)
+
+    return df
+
+def download_restaurants_from_bq():
+    
+    
+    # get current mapping
+    id_mapping_dict = get_id_mapping_dict()
+    # get new restuarants to upload
+    ds = (datetime.datetime.today() - datetime.timedelta(2)).strftime("%Y-%m-%d")
+    google_maps_restaurant_df = get_google_maps_restaurant_df(ds=ds)
+    
+    new_restaurant_ids = {}
+    num_new_restaurants = 0
+    num_updated_restaurants = 0
+    # iterate through restaurnts, look for id match
+    for i, record in google_maps_restaurant_df.iterrows():
+        restaurant = Restaurant.objects.filter(name=record['name'], address=record['address'])
+        gid = record['google_maps_id']
+        if len(restaurant) > 0:
+            restaurant = restaurant[0]
+
+            # add new id pairing if needed
+            if id_mapping_dict.get(gid) != restaurant.id:
+                new_restaurant_ids[gid] = restaurant.id
+                num_updated_restaurants += 1
+        else:
+            # add restaurant to db
+            fields = {
+                'name': record['name'],
+                'address': record['address'],
+                'google_maps_url': record['google_maps_url'],
                 'created_at': datetime.datetime.now(),
-                'ranking_quality_score': record['ranking_quality_score'],
-                'neighborhood': neighborhood,
             }
-        )
-        if (i % 500 == 0):
-            print(i)
+            r = Restaurant(**fields)
+            r.save()
+            # add google_maps_id_mapping
+            new_restaurant_ids[gid] = r.id
+            num_new_restaurants += 1
+
+    # upload refreshed mapping
+    data = { 
+        'google_maps_id':new_restaurant_ids.keys(),   
+        'application_id':new_restaurant_ids.values()
+    }
+    upload_df = pd.DataFrame(data)
+    table_schema = [
+        {
+            "name": "google_maps_id",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "application_id",
+            "type": "INTEGER",
+            "mode": "NULLABLE"
+        },
+    ]
+    destination_table = 'restaurant_data.restaurant_id_mapping'
+
+    upload_df.to_gbq(
+        destination_table,
+        project_id=project_id,
+        if_exists='append',
+        table_schema=table_schema
+    )
