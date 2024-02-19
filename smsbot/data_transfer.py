@@ -301,37 +301,30 @@ def download_features_from_bq():
     download restaurant features to server and upload to table
     '''
     pass
-#     # establish bigquery connection
-#     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")    # establish postgres connection
-#     # pull restaurant features
-#     query  = '''
-#         SELECT 
-#             id,
-#             google_maps_rating as ranking_quality_score,
-#             neighborhood_id
-#         FROM warehouse_features.restaurant_basic_google_maps
-#     '''
-#     df = pd.read_gbq(query, project_id=project_id)
-#     print(df.shape)
-#     print(df.head(1))
-#     # write features to db
-#     for i, record in df.iterrows():
-#         restaurant = Restaurant.objects.get(pk=record['id'])
-#         try:
-#             neighborhood = Neighborhood.objects.get(pk=record['neighborhood_id'])
-#         except Neighborhood.DoesNotExist:
-#             neighborhood = None
-        
-#         rf, _ = RestaurantFeatures.objects.update_or_create(
-#             restaurant=restaurant,
-#             defaults={
-#                 'created_at': datetime.datetime.now(),
-#                 'ranking_quality_score': record['ranking_quality_score'],
-#                 'neighborhood': neighborhood,
-#             }
-#         )
-#         if (i % 500 == 0):
-#             print(i)
+    # establish bigquery connection
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")    # establish postgres connection
+    # pull restaurant features
+    query  = '''
+        SELECT 
+            id,
+            ranking_quality_score,
+            place_tags
+        FROM warehouse_features.restaurant_basic_google_maps
+    '''
+    df = pd.read_gbq(query, project_id=project_id)
+    print(df.shape)
+    print(df.head(1))
+    # write features to db
+    for i, record in df.iterrows():
+        r, _ = Restaurant.objects.update_or_create(
+            pk=record['neighborhood_id'],
+            defaults={
+                'ranking_quality_score': record['ranking_quality_score'],
+                'place_tags': record['place_tags'],
+            }
+        )
+        if (i % 500 == 0):
+            print(i)
 
 
 ### Load restaurants from scraper into DB###
