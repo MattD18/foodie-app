@@ -52,8 +52,6 @@ class Engagement(models.Model):
     action = models.CharField(max_length=20, choices=LOG_ACTIONS)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
-# Create your models here.
 class Conversation(models.Model):
     '''
     converation with user
@@ -62,3 +60,11 @@ class Conversation(models.Model):
     sender = models.CharField(max_length=15)
     message = models.CharField(max_length=2000)
     response = models.CharField(max_length=2000)
+
+class Place(models.Model):
+    '''
+    restaurant places
+    '''
+    name = models.CharField(max_length=200)
+    geo = models.CharField(max_length=1000000)
+    

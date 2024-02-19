@@ -58,6 +58,7 @@ DATASET_NAME = os.environ.get('WAREHOUSE_DATASET')
 TABLE_MAPPING = {
     'dim_restaurant': 'smsbot_restaurant',
     'dim_user': 'smsbot_foodieuser',
+    'dim_place': 'smsbot_place',
     'fct_user_engagement': 'smsbot_engagement',
     'fct_user_conversation': 'smsbot_conversation',
 }
@@ -129,6 +130,28 @@ SCHEMA_MAPPING = {
         {
             "name": "created_at",
             "type": "TIMESTAMP",
+            "mode": "NULLABLE"
+        },
+    ],
+    'dim_place': [
+        {
+            "name": "ds",
+            "type": "DATE",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "id",
+            "type": "INTEGER",
+            "mode": "NULLABLE"
+        },
+        {
+            "name": "name",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+                {
+            "name": "geo",
+            "type": "STRING",
             "mode": "NULLABLE"
         },
     ],
