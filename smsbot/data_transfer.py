@@ -81,6 +81,11 @@ SCHEMA_MAPPING = {
             "mode": "NULLABLE"
         },
         {
+            "name": "address",
+            "type": "STRING",
+            "mode": "NULLABLE"
+        },
+        {
             "name": "created_at",
             "type": "TIMESTAMP",
             "mode": "NULLABLE"
@@ -91,9 +96,14 @@ SCHEMA_MAPPING = {
             "mode": "NULLABLE"
         },
         {
-            "name": "google_maps_id",
-            "type": "STRING",
+            "name": "ranking_quality_score",
+            "type": "FLOAT",
             "mode": "NULLABLE"
+        },
+        {
+            "name": "place_tags",
+            "type": "STRING",
+            "mode": "REPEATED"
         },
     ],
     'dim_user': [
