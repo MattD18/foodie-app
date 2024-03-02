@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 import numpy as np
 
 # Internal imports
-from .models import Restaurant, Conversation
+from .models import Restaurant, Conversation, Place
 from .utils import send_message, logger, log_engagement, create_new_user
 from .data_transfer import (
     upload_app_data_to_bq, 
@@ -17,6 +17,7 @@ from .data_transfer import (
     download_restaurants_from_bq,
 )
 from .rec_engine import RecEngine
+from .query_parser import QueryParser
 
 def index(request):
     return HttpResponse("Hello world, it's Foodie")
@@ -29,31 +30,28 @@ def reply(request):
     phone_number = request.POST.get('From').split("phone:")[-1]
     print(f"Sending the response to this number: {phone_number}")
     # get user message
-    body = request.POST.get('Body', '')
+    query_parser = QueryParser()
+    user_query = request.POST.get('Body', '')
+    user_intent = query_parser.classify_intent(user_query)
     # Retrieve the author
     user = request.user
 
-    # classify intent
-    intent = 'fallback'
-    if 'Rec me' in body:
-        intent = 'recommendation'
-
-        # formulate response
-        if intent == 'recommendation':
-            # Generate a restaurant recommendation
-            rec_engine = RecEngine()
-            query = body
-            rec = rec_engine.get_recommendation(query)
-            if rec is None:
-                response = 'No recs found. Text "Rec me" to receive our restaurant pick for you\n\nOr try "Rec me <neighborhood>" to search a specifc area, for example "Rec me Williamsburg"'
-            else:
-                restaurant = Restaurant.objects.get(id=rec)
-                if restaurant is not None:
-                    response = f'Our rec for you is {restaurant.name}: \n\n{restaurant.google_maps_url}'
-                else:
-                    response = 'No recs found. Text "Rec me" to receive our restaurant pick for you\n\nOr try "Rec me <neighborhood>" to search a specifc area, for example "Rec me Williamsburg"'
+    # process user query
+    if user_intent == 'RECOMMENDATION':
+        # Generate a restaurant recommendation
+        rec_engine = RecEngine()
+        place_id = query_parser.extract_place(user_query)
+        rec, query_status = rec_engine.get_recommendation(place_id)
+        if query_status == 'NOT_FOUND':
+            response = 'No recs found. Try another neighborhood, for example "Rec me Williamsburg"'
+        else:
+            restaurant = Restaurant.objects.get(id=rec)
+            place = Place.objects.get(id=place_id)
+            response = f'Our rec for {place.name} is {restaurant.name}: \n\n{restaurant.google_maps_url}'
+    elif user_intent == 'FALLBACK':
+        response = 'Text "Rec me <neighborhood>" for a local NYC food recommendation, for example: "Rec me Williamsburg"'
     else:
-        response = 'Text "Rec me" to receive our restaurant pick for you\n\nOr try "Rec me <neighborhood>" to search a specifc area, for example "Rec me Williamsburg"'
+        pass
 
     # send response
     send_message(phone_number, response)
@@ -73,7 +71,7 @@ def reply(request):
         return HttpResponse(status=500)
 
     # log sms impression
-    if intent == 'recommendation':
+    if user_intent == 'RECOMMENDATION':
         log_engagement(user, restaurant, 'sms_impression')
 
     return HttpResponse('')

@@ -22,6 +22,12 @@ class FoodieUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.foodie_username
 
+class Place(models.Model):
+    '''
+    restaurant places
+    '''
+    name = models.CharField(max_length=200)
+    geo = models.CharField(max_length=1000000)
 
 class Restaurant(models.Model):
     '''
@@ -34,7 +40,7 @@ class Restaurant(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     google_maps_url = models.URLField(max_length=200, null=True)
     ranking_quality_score = models.FloatField(null=True)
-    place_tags = ArrayField(models.CharField(max_length=200), null=True)
+    place_tags = ArrayField(models.ForeignKey(Place), null=True)
 
     
     def __str__(self):
@@ -60,11 +66,4 @@ class Conversation(models.Model):
     sender = models.CharField(max_length=15)
     message = models.CharField(max_length=2000)
     response = models.CharField(max_length=2000)
-
-class Place(models.Model):
-    '''
-    restaurant places
-    '''
-    name = models.CharField(max_length=200)
-    geo = models.CharField(max_length=1000000)
     
