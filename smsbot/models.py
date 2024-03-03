@@ -40,7 +40,7 @@ class Restaurant(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     google_maps_url = models.URLField(max_length=200, null=True)
     ranking_quality_score = models.FloatField(null=True)
-    place_tags = ArrayField(models.ForeignKey(Place), null=True)
+    place_tags = models.ManyToManyField(Place, related_name='restaurants')
 
     
     def __str__(self):

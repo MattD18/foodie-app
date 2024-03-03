@@ -41,7 +41,10 @@ def reply(request):
         # Generate a restaurant recommendation
         rec_engine = RecEngine()
         place_id = query_parser.extract_place(user_query)
-        rec, query_status = rec_engine.get_recommendation(place_id)
+        query_parameters = {
+            'place_id':place_id
+        }
+        rec, query_status = rec_engine.get_recommendation(query_parameters)
         if query_status == 'NOT_FOUND':
             response = 'No recs found. Try another neighborhood, for example "Rec me Williamsburg"'
         else:
