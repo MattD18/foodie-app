@@ -13,7 +13,8 @@ from google.cloud import secretmanager
 
 
 from .models import (
-    Restaurant
+    Restaurant,
+    Place
 )
 
 
@@ -304,23 +305,21 @@ def download_features_from_bq():
             id,
             ranking_quality_score,
             place_tags
-        FROM warehouse_features.restaurant_basic_google_maps
+        FROM warehouse_features.restaurant_basic_google_maps_v2
     '''
     df = pd.read_gbq(query, project_id=project_id)
     print(df.shape)
     print(df.head(1))
     # write features to db
     for i, record in df.iterrows():
-        r, _ = Restaurant.objects.update_or_create(
-            pk=record['neighborhood_id'],
-            defaults={
-                'ranking_quality_score': record['ranking_quality_score'],
-                'place_tags': record['place_tags'],
-            }
-        )
+        r = Restaurant.objects.get(id=record['id'])
+        if r:
+            # Update the fields
+            r.ranking_quality_score = record['ranking_quality_score']
+            r.place_tags.set([Place.objects.get(id=pid) for pid in record['place_tags']])
+            r.save()
         if (i % 500 == 0):
             print(i)
-
 
 ### Load restaurants from scraper into DB###
 
