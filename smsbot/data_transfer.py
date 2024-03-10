@@ -330,7 +330,7 @@ def download_features_from_bq():
 ### Load restaurants from scraper into DB###
 
 # get existing google maps to application mappings
-def get_id_mapping_dict():
+def get_id_mapping_dict(project_id):
     
     query = '''
 
@@ -340,14 +340,14 @@ def get_id_mapping_dict():
         from restaurant_data.restaurant_id_mapping
 
     '''
+    
     df = pd.read_gbq(query, project_id=project_id)
-
     id_mapping_dict = dict(zip(df['google_maps_id'], df['application_id']))
     return id_mapping_dict
 
 
 # get new restauarnts 
-def get_google_maps_restaurant_df(ds):
+def get_google_maps_restaurant_df(ds, project_id):
     query = f'''
 
         SELECT
@@ -360,19 +360,20 @@ def get_google_maps_restaurant_df(ds):
         group by 1, 2
 
     '''
-    
     df = pd.read_gbq(query, project_id=project_id)
 
     return df
 
-def download_restaurants_from_bq():
+def download_restaurants_from_bq(ds=None):
     
-    
+    #get project_id
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
     # get current mapping
-    id_mapping_dict = get_id_mapping_dict()
+    id_mapping_dict = get_id_mapping_dict(project_id=project_id)
     # get new restuarants to upload
-    ds = (datetime.datetime.today() - datetime.timedelta(2)).strftime("%Y-%m-%d")
-    google_maps_restaurant_df = get_google_maps_restaurant_df(ds=ds)
+    if ds is None:
+        ds = (datetime.datetime.today() - datetime.timedelta(2)).strftime("%Y-%m-%d")
+    google_maps_restaurant_df = get_google_maps_restaurant_df(ds=ds, project_id=project_id)
     
     new_restaurant_ids = {}
     num_new_restaurants = 0
