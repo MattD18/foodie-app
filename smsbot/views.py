@@ -36,16 +36,17 @@ def reply(request):
     # Retrieve the author
     user = request.user
 
-    # process user query
+    # # process user query
     if user_intent == 'RECOMMENDATION':
         # Generate a restaurant recommendation
         rec_engine = RecEngine()
         place_id = query_parser.extract_place(user_query)
+        print(place_id)
         query_parameters = {
             'place_id':place_id
         }
         rec, query_status = rec_engine.get_recommendation(query_parameters)
-        if query_status == 'NOT_FOUND':
+        if (query_status == 'NOT_FOUND') or (place_id is None):
             response = 'No recs found. Try another neighborhood, for example "Rec me Williamsburg"'
         else:
             restaurant = Restaurant.objects.get(id=rec)
