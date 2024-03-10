@@ -100,11 +100,6 @@ SCHEMA_MAPPING = {
             "type": "FLOAT",
             "mode": "NULLABLE"
         },
-        {
-            "name": "place_tags",
-            "type": "STRING",
-            "mode": "REPEATED"
-        },
     ],
     'dim_user': [
         {
