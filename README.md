@@ -13,3 +13,5 @@ Supported neighborhoods include:
 - Park Slope
 - Upper East Side
 - Upper West Side
+
+Note: Foodie is under development and runs on GCP Free Tier with constrained resources. Users should expect slow responses (~10 seconds) and occassionally will need to resend messages to recieve a response.
