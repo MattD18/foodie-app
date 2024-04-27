@@ -132,7 +132,16 @@ WSGI_APPLICATION = 'foodie.wsgi.application'
 # [START db_setup]
 # [START gaestd_py_django_database_config]
 # Use django-environ to parse the connection string
-DATABASES = {"default": env.db()}
+if os.path.isfile(env_file):
+    DATABASES = {"default": {}}
+    DATABASES["default"]["NAME"] = env("NAME_DB")
+    DATABASES["default"]["USER"] = env("USER_DB")
+    DATABASES["default"]["PASSWORD"] = env("PASSWORD_DB")
+    DATABASES["default"]["HOST"] = env("HOST_DB")
+    DATABASES["default"]["PORT"] = env("PORT_DB")
+    DATABASES["default"]["ENGINE"] = 'django.db.backends.postgresql'
+else:
+    DATABASES = {"default": env.db()}
 
 # If the flag as been set, configure to use proxy
 if os.getenv("USE_CLOUD_SQL_AUTH_PROXY", None):
