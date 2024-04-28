@@ -12,16 +12,6 @@ class RestaurantBase(BaseModel):
     google_maps_url: Union[str, None] = None
     ranking_quality_score: Union[float, None] = None
 
-class RestaurantCreate(RestaurantBase):
-    pass
-
-
-class Restaurant(RestaurantBase):
-
-    class Config:
-        from_attributes = True
-
-
 class UserBase(BaseModel):
     id : int
     password: Union[str, None] = None
@@ -33,12 +23,19 @@ class UserBase(BaseModel):
     date_joined: Union[datetime, None] = None
     created_at: Union[datetime, None] = None
 
+class RestaurantCreate(RestaurantBase):
+    pass
+
+class Restaurant(RestaurantBase):
+    
+    class Config:
+        from_attributes = True
 
 class UserCreate(UserBase):
     pass
-
 
 class User(UserBase):
 
     class Config:
         from_attributes = True
+

@@ -1,4 +1,7 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Float
+from sqlalchemy import (
+    Boolean, Column, DateTime, Integer, String, Float,
+    Table, ForeignKey
+)
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -16,6 +19,13 @@ class User(Base):
     date_joined = Column(DateTime)
     created_at = Column(DateTime)
 
+# Association Table for many-to-many relationship
+association_table = Table(
+    'smsbot_restaurant_place_tags', Base.metadata,
+    Column('restaurant_id', Integer, ForeignKey('smsbot_restaurant.id')),
+    Column('place_id', Integer, ForeignKey('smsbot_place.id'))
+)
+
 class Restaurant(Base):
     __tablename__ = "smsbot_restaurant"
     id = Column(Integer, primary_key = True)
@@ -24,3 +34,16 @@ class Restaurant(Base):
     created_at = Column(DateTime)
     google_maps_url = Column(String)
     ranking_quality_score = Column(Float)
+    # # # Establish many-to-many relationship with Place model
+    places = relationship("Place", secondary=association_table, back_populates="restaurants")
+
+
+class Place(Base):
+    __tablename__ = "smsbot_place"
+    id = Column(Integer, primary_key = True)
+    name = Column(String)
+    geo = Column(String)
+
+    # # Establish many-to-many relationship with Place model
+    restaurants = relationship("Restaurant", secondary=association_table, back_populates="places")
+    

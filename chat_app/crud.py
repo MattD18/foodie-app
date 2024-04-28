@@ -18,5 +18,3 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 def get_restaurant(db: Session, restaurant_id: int):
     return db.query(models.Restaurant).filter(models.Restaurant.id == restaurant_id).first()
-
-
