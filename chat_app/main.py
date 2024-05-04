@@ -12,17 +12,20 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
+from sqlalchemy.engine import Engine
 
 from . import crud, models, schemas, utils
-from .database import SessionLocal, engine
+from .database import SessionLocal, engine as ENGINE
 
 from .query_parser import QueryParser
 from .rec_engine import RecEngine
+from .data_transfer import upload_app_data_to_bq
 
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.request_validator import RequestValidator  
 
 env_vars = utils.get_env_vars()
+PROJECT_ID = env_vars['GOOGLE_CLOUD_PROJECT']
 
 app = FastAPI()
 
@@ -141,6 +144,10 @@ async def chat(
     )
     crud.create_conversation(db=db, conversation=conversation)
 
-
-
     return Response(content=str(response), media_type="application/xml")
+
+
+@app.post("/upload_warehouse")
+async def upload_warehouse(db: Session = Depends(get_db)):
+    upload_app_data_to_bq(project_id=PROJECT_ID, engine=ENGINE)
+    return
