@@ -147,10 +147,7 @@ async def chat(
     return Response(content=str(response), media_type="application/xml")
 
 
-@app.post("/upload_warehouse")
-async def upload_warehouse(db: Session = Depends(get_db)):
-    is_scheduler = request.headers.get("X-Scheduler-Signature", False)
-    if not is_scheduler:
-        raise HTTPException(status_code=400, detail="Error in Twilio Signature")
-    upload_app_data_to_bq(project_id=PROJECT_ID, engine=ENGINE)
-    return
+# @app.get("/upload_warehouse")
+# async def upload_warehouse():
+#     upload_app_data_to_bq(project_id=PROJECT_ID, engine=ENGINE)
+#     return
