@@ -1,4 +1,5 @@
 from typing import List
+import datetime
 
 from fastapi import (
     Depends, 
@@ -73,11 +74,29 @@ async def chat(
     user_query = Body
     print(f"Sending the response to this number: {phone_number}")
 
+    #get user
+    user = crud.get_user_by_phone_number(db=db, phone_number=phone_number)
+    if user is None:
+        user = schemas.UserCreate(
+            password= "",
+            last_login= datetime.datetime.now(),
+            is_superuser= False,
+            phone_number=phone_number,
+            is_staff= False,
+            is_active= True,
+            date_joined=datetime.datetime.now(),
+            created_at= datetime.datetime.now()
+        )
+        crud.create_user(db=db, user=user)
+        user = crud.get_user_by_phone_number(db=db, phone_number=phone_number)
+    print(f"User: {user.id}")
+
     # classify query intent
     qp = QueryParser(db=db)
     user_intent = qp.classify_intent(user_query)
 
      # # process user query
+    log_impression_flag = False
     if user_intent == 'RECOMMENDATION':
         # Generate a restaurant recommendation
         rec_engine = RecEngine(db=db)
@@ -93,6 +112,7 @@ async def chat(
             restaurant = db.query(models.Restaurant).filter(models.Restaurant.id == rec).first()
             place = db.query(models.Place).filter(models.Place.id == place_id).first()
             response_body = f'Our rec for {place.name} is {restaurant.name}: \n\n{restaurant.google_maps_url}'
+            log_impression_flag = True
     elif user_intent == 'FALLBACK':
         response_body = 'Text "Rec me <neighborhood>" for a local NYC food recommendation, for example: "Rec me Williamsburg"'
     else:
@@ -102,5 +122,25 @@ async def chat(
     response = MessagingResponse()
     msg = response.message(response_body)
 
-    #TODO log interaction in db
+    #log conversation in db
+    if log_impression_flag:
+        engagement = schemas.EngagementCreate(
+            action="sms_impression",
+            created_at= datetime.datetime.now(),
+            restaurant_id=restaurant.id,
+            user_id=user.id,
+        )
+        crud.create_engagement(db=db, engagement=engagement)
+    
+
+    conversation = schemas.ConversationCreate(
+            ts=datetime.datetime.now(),
+            sender=phone_number,
+            message=user_query,
+            response=response_body,
+    )
+    crud.create_conversation(db=db, conversation=conversation)
+
+
+
     return Response(content=str(response), media_type="application/xml")

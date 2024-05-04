@@ -47,3 +47,18 @@ class Place(Base):
     # # Establish many-to-many relationship with Place model
     restaurants = relationship("Restaurant", secondary=association_table, back_populates="places")
     
+class Engagement(Base):
+    __tablename__ = "smsbot_engagement"
+    id = Column(Integer, primary_key = True)
+    action = Column(String)
+    created_at = Column(DateTime)
+    restaurant_id = Column(Integer, ForeignKey('smsbot_restaurant.id'))
+    user_id = Column(Integer, ForeignKey('smsbot_foodieuser.id'))
+
+class Conversation(Base):
+    __tablename__ = "smsbot_conversation"
+    id = Column(Integer, primary_key = True)
+    ts = Column(String)
+    sender = Column(String) 
+    message = Column(String) 
+    response = Column(String)   
