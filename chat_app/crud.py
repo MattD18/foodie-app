@@ -20,6 +20,20 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_restaurant(db: Session, restaurant_id: int):
     return db.query(models.Restaurant).filter(models.Restaurant.id == restaurant_id).first()
 
+def create_restaurant(db: Session, restaurant: schemas.RestaurantCreate):
+    db_restaurant = models.Restaurant(**restaurant.dict())
+    db.add(db_restaurant)
+    db.commit()
+    db.refresh(db_restaurant)
+    return db_restaurant
+
+def create_place(db: Session, place: schemas.PlaceCreate):
+    db_place = models.Place(**place.dict())
+    db.add(db_place)
+    db.commit()
+    db.refresh(db_place)
+    return db_place
+
 
 def create_engagement(db: Session, engagement: schemas.EngagementCreate):
     db_engagment = models.Engagement(**engagement.dict())

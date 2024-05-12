@@ -5,12 +5,10 @@ from datetime import datetime
 from pydantic import BaseModel
 
 class RestaurantBase(BaseModel):
-    id : int
     name: Union[str, None] = None
     address: Union[str, None] = None
     created_at: Union[datetime, None] = None
     google_maps_url: Union[str, None] = None
-    ranking_quality_score: Union[float, None] = None
 
 class RestaurantCreate(RestaurantBase):
     pass
@@ -38,6 +36,14 @@ class User(UserBase):
 
     class Config:
         from_attributes = True
+
+class PlaceBase(BaseModel):
+    name: Union[str, None]
+    geo: Union[str, None]
+
+class PlaceCreate(PlaceBase):
+    pass
+
 
 class EngagementBase(BaseModel):
     action: Union[str, None]

@@ -169,5 +169,3 @@ SCHEMA_MAPPING = {
 
     ],
 }
-
-DATASET_NAME = 'application_prod'

@@ -19,13 +19,19 @@ from .database import SessionLocal, engine as ENGINE
 
 from .query_parser import QueryParser
 from .rec_engine import RecEngine
-from .data_transfer import upload_app_data_to_bq
+from .data_transfer import (
+    upload_app_data_to_bq, 
+    download_restaurants_from_bq,
+    download_features_from_bq,
+)
 
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.request_validator import RequestValidator  
 
 env_vars = utils.get_env_vars()
 PROJECT_ID = env_vars['GOOGLE_CLOUD_PROJECT']
+DATASET_NAME = env_vars['WAREHOUSE_DATASET']
+PROD_FLAG = env_vars['WAREHOUSE_DATASET'] == 'application_prod'
 
 app = FastAPI()
 
@@ -147,7 +153,20 @@ async def chat(
     return Response(content=str(response), media_type="application/xml")
 
 
-# @app.get("/upload_warehouse")
-# async def upload_warehouse():
-#     upload_app_data_to_bq(project_id=PROJECT_ID, engine=ENGINE)
-#     return
+@app.get("/upload_warehouse")
+async def upload_warehouse():
+    upload_app_data_to_bq(project_id=PROJECT_ID, dataset=DATASET_NAME, engine=ENGINE)
+    return
+
+
+@app.get("/download_restaurants")
+async def download_restaurants(db: Session = Depends(get_db), prod_flag=PROD_FLAG):
+    # ds = (datetime.datetime.today() - datetime.timedelta(2)).strftime("%Y-%m-%d")
+    ds = '2024-04-01'
+    download_restaurants_from_bq(db=db, ds=ds, project_id=PROJECT_ID, prod_flag=prod_flag)
+    return
+
+@app.get("/download_restaurant_features")
+async def download_restaurant_features(db: Session = Depends(get_db)):
+    download_features_from_bq(db=db, project_id=PROJECT_ID)
+    return
