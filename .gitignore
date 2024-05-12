@@ -13,4 +13,5 @@ webapp/foodie/migrations/0*.py
 .ipynb_checkpoints/
 *.ipynb
 local_data/
+local_load_places_to_db.py
 	
